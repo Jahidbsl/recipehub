@@ -8,11 +8,24 @@ const db = client.db("recipehubDb");
 
 export const auth = betterAuth({
   database: mongodbAdapter(db, { client }),
+  
   emailAndPassword: {
     enabled: true,
+   
     onSignUp: async ({ user }) => {
       user.role = "user";
     },
   },
+  
   plugins: [admin()],
+
+
+  user: {
+    additionalFields: {
+      plan: {
+        type: "string",
+        defaultValue: "free", 
+      },
+    },
+  }, 
 });

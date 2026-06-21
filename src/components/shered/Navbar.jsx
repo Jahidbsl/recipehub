@@ -21,7 +21,7 @@ import {
 
 const navLinks = [
   { label: "Home", href: "/", icon: House },
-  { label: "Browse Recipes", href: "/recipes", icon: ChefHat },
+  { label: "Browse Recipes", href: "/browse-recipes", icon: ChefHat },
   { label: "About Us", href: "/about", icon: CircleInfo }
 ];
 
@@ -72,6 +72,7 @@ export default function Navbar() {
                   <Link 
                     key={link.href} 
                     href={link.href} 
+                    suppressHydrationWarning={true}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-neutral-600 dark:text-zinc-400 hover:bg-neutral-100/80 dark:hover:bg-zinc-900/80 hover:text-neutral-900 dark:hover:text-zinc-50 transition-all duration-200"
                   >
                     <IconComponent className="text-[16px] opacity-70" />
