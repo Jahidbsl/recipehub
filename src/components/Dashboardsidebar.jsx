@@ -51,7 +51,7 @@ const USER_NAV = [
   {
     section: "Library",
     items: [
-      { label: "My favorites", href: "/dashboard/favorites", icon: Heart },
+      { label: "My favorites", href: "/dashboard/my-favorites", icon: Heart },
       {
         label: "Purchased recipes",
         href: "/dashboard/purchased",
@@ -69,20 +69,20 @@ const ADMIN_NAV = [
   {
     section: "Dashboard",
     items: [
-      { label: "Overview", href: "/admin", icon: LayoutDashboard, exact: true },
+      { label: "Overview", href: "/admin/dashboard", icon: LayoutDashboard, exact: true },
       {
         label: "Manage users",
-        href: "/admin/users",
+        href: "/admin/dashboard/manage-users",
         icon: Users,
         badge: "124",
       },
       {
         label: "Manage recipes",
-        href: "/admin/recipes",
+        href: "/admin/dashboard/manage-recipes",
         icon: UtensilsCrossed,
         badge: "56",
       },
-      { label: "Reports", href: "/admin/reports", icon: BarChart3 },
+      { label: "Reports", href: "/admin/dashboard/manage-reports", icon: BarChart3 },
     ],
   },
 ];

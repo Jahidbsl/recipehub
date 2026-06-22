@@ -20,20 +20,25 @@ const page = async ({ params, searchParams }) => {
 
     if (!recipe) return notFound();
 
+    // স্ট্রাইপ সেশন ভেরিফিকেশন
     if (resolvedSearchParams?.session_id) {
       try {
         const session = await stripe.checkout.sessions.retrieve(resolvedSearchParams.session_id);
+        
         if (session.payment_status === "paid") {
-          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+          
+          // মেটাডাটা ও সেফটি অবজেক্ট থেকে নিখুঁত ডাটা এক্সট্র্যাক্ট
+          const userId = session.metadata?.userId;
+          const recipeId = session.metadata?.recipeId || id;
+          const amount = session.metadata?.amount ? Number(session.metadata.amount) : 4.99;
+          const email = session.metadata?.email || session.customer_details?.email;
+
+          // এক্সপ্রেস ব্যাকএন্ডের সঠিক রাউটে ডেটা পাঠানো
           await fetch(`${baseUrl}/api/purchases`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId: session.metadata.userId,
-              recipeId: id,
-              amount: session.amount_total,
-              email: session.customer_email,
-            }),
+            body: JSON.stringify({ userId, recipeId, amount, email }),
           });
         }
       } catch (err) {
@@ -51,6 +56,7 @@ const page = async ({ params, searchParams }) => {
           recipe={recipe}
           user={user}
           initialInteractions={interactions}
+          showSuccessModal={!!resolvedSearchParams?.session_id}
         />
       </div>
     );

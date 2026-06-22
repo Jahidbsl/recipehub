@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import { Button, Card } from "@heroui/react";
-import { Shield, User, Mail, Calendar, Key, Save, Camera } from "lucide-react";
+import { Shield, User, Mail, Calendar, Key, Save, Camera, Sparkles, CreditCard } from "lucide-react";
 import { toast } from "react-toastify";
+
+import { getPlanById } from "@/lib/api/plans"; 
 
 function CustomInput({ label, type = "text", value, onChange, disabled, placeholder, startContent, description }) {
   return (
@@ -55,6 +57,10 @@ export default function ProfilePage() {
   const [imagePreview, setImagePreview] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  
+  // 💡 প্ল্যান ডাটা এবং প্ল্যান লোডিং এর জন্য স্টেট
+  const [userPlan, setUserPlan] = useState(null);
+  const [planLoading, setPlanLoading] = useState(false);
 
   const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_KEY;
 
@@ -66,6 +72,22 @@ export default function ProfilePage() {
       } else {
         setName(session.user.name || "");
         setImagePreview(session.user.image || "");
+        
+        // 💡 ২. ইউজার ডাটা পাওয়ার পর প্ল্যান এপিআই কল করা
+        const fetchUserPlan = async () => {
+          try {
+            setPlanLoading(true);
+            // ডাটাবেজের 'user.plan' ফিল্ড থেকে আইডি পাঠানো হচ্ছে (যেমন: 'free')
+            const planData = await getPlanById(session.user.plan);
+            setUserPlan(planData);
+          } catch (error) {
+            console.error("Failed to fetch plan:", error);
+          } finally {
+            setPlanLoading(false);
+          }
+        };
+
+        fetchUserPlan();
       }
     }
   }, [session, isPending, router]);
@@ -110,10 +132,9 @@ export default function ProfilePage() {
       if (selectedFile) {
         toast.info("Uploading image...");
         finalImageUrl = await uploadImageToImgbb(selectedFile);
-        setImagePreview(finalImageUrl); // ✅ update preview with real URL
+        setImagePreview(finalImageUrl);
       }
 
-      // ✅ Better Auth এর সঠিক method
       const { data, error } = await authClient.updateUser({
         name: name.trim(),
         image: finalImageUrl,
@@ -126,8 +147,6 @@ export default function ProfilePage() {
 
       toast.success("Profile updated successfully!");
       setSelectedFile(null);
-
-      // ✅ Next.js way — router.refresh() server থেকে fresh data নিয়ে আসে
       router.refresh();
 
     } catch (error) {
@@ -166,8 +185,8 @@ export default function ProfilePage() {
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
 
-          {/* Left Column: Avatar */}
-          <div className="md:col-span-1">
+          {/* Left Column: Avatar & Dynamic Plan Badge */}
+          <div className="md:col-span-1 space-y-6">
             <Card className="border border-neutral-200/60 bg-white shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/50">
               <div className="flex flex-col items-center py-8 px-4 text-center">
 
@@ -204,12 +223,55 @@ export default function ProfilePage() {
                   {isAdmin ? <Shield size={12} /> : <User size={12} />}
                   {user.role || "User"}
                 </div>
+                
                 {selectedFile && (
                   <span className="text-[10px] text-orange-500 font-medium mt-2 animate-pulse">
                     Unsaved changes (*image)
                   </span>
                 )}
               </div>
+            </Card>
+
+            {/* 💡 ৩. ডাইনামিক প্ল্যান কার্ড (ডিজাইন মেইন্টেন করে বামে অ্যাড করা হলো) */}
+            <Card className="border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/50">
+              <h4 className="text-xs font-bold text-neutral-400 dark:text-zinc-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <CreditCard size={14} /> Membership Plan
+              </h4>
+              
+              {planLoading ? (
+                <div className="h-12 bg-neutral-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      {/* প্ল্যানের নাম বড় হাতের অক্ষরে দেখাবে, নাম না পেলে ডাটাবেজের আইডি দেখাবে */}
+                      <p className="text-base font-black text-neutral-900 dark:text-zinc-50 capitalize">
+                        {(userPlan?.name || user.plan || "Free")}
+                      </p>
+                      <p className="text-xs text-neutral-500 dark:text-zinc-400">
+                        {user.plan === "free" ? "Limited access" : "Full premium access"}
+                      </p>
+                    </div>
+                    <span className={`p-2 rounded-xl ${
+                      user.plan !== "free" 
+                        ? "bg-amber-500/10 text-amber-500" 
+                        : "bg-neutral-100 dark:bg-zinc-800 text-neutral-500"
+                    }`}>
+                      <Sparkles size={20} className={user.plan !== "free" ? "animate-spin-slow" : ""} />
+                    </span>
+                  </div>
+                  
+                  {user.plan === "free" && (
+                    <Button 
+                      size="sm"
+                      className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl mt-1 text-xs shadow-sm"
+                      onPress={() => router.push("/plans")}
+                    >
+                      Upgrade to Pro
+                    </Button>
+                  )}
+                </div>
+              )}
             </Card>
           </div>
 

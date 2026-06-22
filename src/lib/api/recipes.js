@@ -21,3 +21,35 @@ export const getRecipeById = async (id) => {
 export const getInteractions = async (recipeId, userId) => {
   return serverFetch(`/api/browse-recipes/${recipeId}/interactions?userId=${userId}`);
 };
+
+
+export const getUserFavorites = async (userId) => {
+  const data = await serverFetch(`/api/users/${userId}/favorites`);
+  return data || [];
+};
+
+export const getUserPurchases = async (userId) => {
+  const data = await serverFetch(`/api/users/${userId}/purchases`);
+  return data || [];
+};
+
+// admin for manage
+
+export const patchRecipeFeature = async (recipeId, isFeaturedNow) => {
+ 
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+  const res = await fetch(`${BACKEND_URL}/api/recipes/${recipeId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ isFeatured: isFeaturedNow }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to update on backend");
+  }
+
+  return res.json();
+};

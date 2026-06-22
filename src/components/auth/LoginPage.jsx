@@ -1,21 +1,35 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { Card, Input, Button, TextField, Label } from "@heroui/react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const authError = searchParams.get("error");
+  const hasShownError = useRef(false);
 
-  // ইমেইল ও পাসওয়ার্ড দিয়ে লগইন
+  useEffect(() => {
+    if (authError && !hasShownError.current) {
+      const cleanMessage = decodeURIComponent(authError).replace(/\+/g, " ");
+      toast.error(cleanMessage || "Authentication failed! ❌", {
+        position: "top-center",
+        autoClose: 5000,
+      });
+      hasShownError.current = true;
+    }
+  }, [authError]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -40,13 +54,13 @@ export default function LoginPage() {
     }
   };
 
-  // গুগল সোশ্যাল লগইন
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard"
+        callbackURL: "/dashboard", 
+        errorCallbackURL: "/auth/signin" 
       });
       toast.success("Redirecting to Google... 🚀");
     } catch (err) {
@@ -67,8 +81,6 @@ export default function LoginPage() {
 
         <Card.Content>
           <form onSubmit={handleLogin} className="space-y-4">
-            
-            {/* Email Field */}
             <TextField isRequired name="email" className="w-full">
               <Label>Email Address</Label>
               <Input
@@ -79,32 +91,25 @@ export default function LoginPage() {
               />
             </TextField>
             
-            {/* Password Field */}
-        <TextField isRequired name="password" className="w-full">
-  <Label>Password</Label>
-
-  <div className="relative">
-    <Input
-      type={showPassword ? "text" : "password"}
-      placeholder="Enter your password"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      className="w-full pr-10"
-    />
-
-    <button
-      type="button"
-      onClick={() => setShowPassword(!showPassword)}
-      className="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-gray-500 hover:text-gray-700"
-    >
-      {showPassword ? (
-        <EyeOff size={18} />
-      ) : (
-        <Eye size={18} />
-      )}
-    </button>
-  </div>
-</TextField>
+            <TextField isRequired name="password" className="w-full">
+              <Label>Password</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </TextField>
 
             <Button 
               type="submit" 
@@ -120,7 +125,6 @@ export default function LoginPage() {
             <span className="relative bg-white px-3 text-xs text-neutral-400 dark:bg-zinc-900">OR</span>
           </div>
 
-          {/* 🛠️ এখানে text-neutral-800 এবং dark:text-neutral-200 যোগ করা হয়েছে */}
           <Button
             className="w-full border border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-800 dark:text-neutral-200 font-medium"
             isLoading={googleLoading}
@@ -143,5 +147,13 @@ export default function LoginPage() {
         </Card.Footer>
       </Card>
     </div>
-  ); 
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
+  );
 }

@@ -1,8 +1,9 @@
-// components/recipes/details/RecipeDetailsClient.jsx
 "use client";
 
-import { useState } from "react";
-import { Heart, Bookmark, Flag, ShoppingCart, Clock, Tag, Globe, ChefHat } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Heart, Bookmark, Flag, ShoppingCart, Clock, Tag, Globe, ChefHat, CheckCircle, X } from "lucide-react";
+import Image from "next/image"; // নেক্সট ইমেজ ইম্পোর্ট করা হলো
+import { useRouter } from "next/navigation"; // ইউআরএল ক্লিন করার জন্য
 
 import { ReportModal } from "./ReportModal";
 import { purchaseRecipe, toggleFavorite, toggleLike } from "@/lib/actions/recipes";
@@ -13,17 +14,39 @@ const diffStyle = {
   Hard:   "bg-rose-50 text-rose-700 border-rose-200",
 };
 
-export function RecipeDetailsClient({ recipe, user, initialInteractions }) {
+export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuccessModal }) {
   const [liked,     setLiked]     = useState(initialInteractions.liked);
   const [favorited, setFavorited] = useState(initialInteractions.favorited);
   const [likeCount, setLikeCount] = useState(recipe.likeCount || 0);
   const [showReport, setShowReport] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const router = useRouter();
 
   const {
     _id, name, category, cuisine, prepTime, difficulty,
     image, ingredients, instructions, userEmail, userImage, createdAt, price,
   } = recipe;
+
+  // সাকসেস মোডাল ট্রিগার এবং ৫ সেকেন্ডের অটো-ক্লোজ টাইমার লজিক
+  useEffect(() => {
+    if (showSuccessModal) {
+      setIsModalOpen(true);
+
+      const timer = setTimeout(() => {
+        closeModal();
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessModal]);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    // মোডাল বন্ধের পর ইউআরএল থেকে সেশন আইডি রিমুভ করা যেন রিফ্রেশে মোডাল আবার না আসে
+    router.replace(`/browse-recipes/${_id}`);
+  };
 
   async function handleLike() {
     if (!user) return alert("Login করো আগে!");
@@ -37,26 +60,36 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions }) {
     const res = await toggleFavorite(_id, user.id);
     setFavorited(res.favorited);
   }
-async function handlePurchase() {
-  if (!user) return alert("Login first");
-  setPurchasing(true);
-  const res = await purchaseRecipe(_id, name, price, user.id, user.email); // ← user info দাও
-  if (res?.url) {
-    window.location.href = res.url;
-  } else {
-    alert(res?.error || "Payment failed!");
-    setPurchasing(false);
+
+  async function handlePurchase() {
+    if (!user) return alert("Login first");
+    setPurchasing(true);
+    const res = await purchaseRecipe(_id, name, price, user.id, user.email);
+    if (res?.url) {
+      window.location.href = res.url;
+    } else {
+      alert(res?.error || "Payment failed!");
+      setPurchasing(false);
+    }
   }
-}
 
   return (
     <>
       <div className="space-y-6">
-        {/* Image */}
+        {/* Main Recipe Image using Next.js Image Component */}
         {image ? (
-          <img src={image} alt={name} className="w-full h-64 sm:h-80 object-cover rounded-2xl" />
+          <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden shadow-sm">
+            <Image 
+              src={image} 
+              alt={name} 
+              fill
+              sizes="(max-w-768px) 100vw, 800px"
+              priority
+              className="object-cover"
+            />
+          </div>
         ) : (
-          <div className="w-full h-64 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-zinc-400">
+          <div className="w-full h-64 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-zinc-400 border border-zinc-200 dark:border-zinc-800">
             <ChefHat size={48} />
           </div>
         )}
@@ -160,10 +193,18 @@ async function handlePurchase() {
           </div>
         )}
 
-        {/* Author */}
-        <div className="flex items-center gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+        {/* Author Footer */}
+        <div className="flex items-center gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
           {userImage ? (
-            <img src={userImage} alt="" className="w-9 h-9 rounded-full object-cover" />
+            <div className="relative w-9 h-9 rounded-full overflow-hidden">
+              <Image 
+                src={userImage} 
+                alt="Author" 
+                fill
+                sizes="36px"
+                className="object-cover"
+              />
+            </div>
           ) : (
             <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-sm font-medium text-blue-700 dark:text-blue-300">
               {userEmail?.[0]?.toUpperCase()}
@@ -177,6 +218,40 @@ async function handlePurchase() {
           </div>
         </div>
       </div>
+
+      {/* --- পেমেন্ট সাকসেস মোডাল UI --- */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl max-w-sm w-full text-center shadow-xl relative animate-[scale-up_0.2s_ease-out]">
+            
+            <button 
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 mb-4 shadow-inner">
+              <CheckCircle size={28} />
+            </div>
+
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
+              Payment Successful!
+            </h3>
+            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
+              Thank you for your purchase. You have unlocked full access to{" "}
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                "{name}"
+              </span>. Happy Cooking!
+            </p>
+
+            {/* ৫ সেকেন্ডের স্লাইডিং প্রোগ্রেস বার ইন্ডিকেটর */}
+            <div className="w-full h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full mt-5 overflow-hidden">
+              <div className="h-full bg-emerald-500 animate-[shrink-width_5s_linear_forwards]" />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Report Modal */}
       {showReport && (

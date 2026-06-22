@@ -13,12 +13,12 @@ export function BrowseRecipesClient({ recipes }) {
   const [category, setCategory] = useState("");
   const [cuisine, setCuisine]   = useState("");
 
-  const filtered = recipes?.filter((r) => {
-    const matchSearch   = !search   || r.name.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = !category || r.category === category;
-    const matchCuisine  = !cuisine  || r.cuisine === cuisine;
-    return matchSearch && matchCategory && matchCuisine;
-  });
+const filtered = recipes?.filter((r) => {
+  const matchSearch   = !search   || r.name.toLowerCase().includes(search.toLowerCase());
+  const matchCategory = !category || r.category === category;
+  const matchCuisine  = !cuisine  || r.cuisine === cuisine;
+  return matchSearch && matchCategory && matchCuisine;
+}) || [];
 
   const hasFilter = search || category || cuisine;
 
