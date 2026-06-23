@@ -7,8 +7,10 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useTheme } from "next-themes";
-import { ChefHat, LayoutDashboard, User, Utensils, UtensilsCrossed } from "lucide-react"; // 💡 LayoutDashboard ও User আইকন ইমপোর্ট করা হয়েছে
+import { ChefHat, LayoutDashboard, UtensilsCrossed } from "lucide-react"; 
 import Image from "next/image";
+import dynamic from "next/dynamic";
+import loadingGray from "@/assets/loading_gray.json";
 import { 
   Sun, 
   Moon, 
@@ -18,6 +20,8 @@ import {
   House, 
   CircleInfo 
 } from "@gravity-ui/icons";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 const navLinks = [
   { label: "Home", href: "/", icon: House },
@@ -47,10 +51,9 @@ export default function Navbar() {
     }
   };
 
-  // 💡 রোল অনুযায়ী আলাদা ড্যাশবোর্ড এবং প্রোফাইল লিঙ্ক নির্ধারণ
   const isAdmin = session?.user?.role === "admin";
   const dashboardHref = isAdmin ? "/admin/dashboard" : "/dashboard";
-  const profileHref = isAdmin ? "/admin/profile" : "/profile";
+  const profileHref = "/profile";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-neutral-200/60 bg-white/70 backdrop-blur-md dark:border-zinc-800/60 dark:bg-zinc-950/70 transition-all duration-300">
@@ -95,16 +98,18 @@ export default function Navbar() {
               </button>
             )}
 
-            {/* Auth Condition with Skeleton Loading */}
+            {/* Auth Condition with Lottie Loading */}
             {isPending ? (
-              <div className="flex items-center gap-3 animate-pulse">
-                <div className="h-8 w-24 bg-neutral-200 dark:bg-zinc-800 rounded-xl"></div>
-                <div className="h-8 w-8 bg-neutral-200 dark:bg-zinc-800 rounded-full"></div>
+              <div className="flex h-10 w-24 items-center justify-center opacity-80 mix-blend-multiply dark:mix-blend-screen">
+                <Lottie 
+                  animationData={loadingGray} 
+                  loop={true} 
+                  className="h-6 w-6 scale-150" 
+                />
               </div>
             ) : session ? (
               <div className="flex items-center gap-2.5 bg-neutral-100/50 dark:bg-zinc-900/50 border border-neutral-200/40 dark:border-zinc-800/40 px-2.5 py-1.5 rounded-2xl">
                 
-                {/* 💡 প্রোফাইল পিকচারে ক্লিক করলে প্রোফাইলে নিয়ে যাবে */}
                 <Link href={profileHref} className="relative h-8 w-8 overflow-hidden rounded-full ring-2 ring-green-500/20 hover:ring-green-500 transition-all" title="View Profile">
                   <Image
                     src={session.user?.image || "https://api.dicebear.com/7.x/avataaars/svg"} 
@@ -116,7 +121,6 @@ export default function Navbar() {
                   />
                 </Link>
 
-                {/* 💡 আলাদা ড্যাশবোর্ড বাটন (Admin বা User Dashboard) */}
                 <Link href={dashboardHref}>
                   <Button 
                     className="bg-transparent hover:bg-green-500/10 text-neutral-700 dark:text-zinc-300 hover:text-green-600 dark:hover:text-green-400 text-xs font-semibold h-8 min-w-0 px-2 rounded-xl transition-all flex items-center gap-1.5"
@@ -126,7 +130,6 @@ export default function Navbar() {
                   </Button>
                 </Link>
 
-                {/* Logout Button */}
                 <Button 
                   onPress={handleLogout}
                   className="bg-transparent hover:bg-red-500/10 text-neutral-700 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 text-xs font-semibold h-8 min-w-0 px-2 rounded-xl transition-all flex items-center gap-1.5"
@@ -194,14 +197,16 @@ export default function Navbar() {
           
           <div className="pt-4 border-t border-neutral-200/60 dark:border-zinc-800/60">
             {isPending ? (
-              <div className="flex items-center justify-between p-3 bg-neutral-100/30 dark:bg-zinc-900/30 rounded-2xl animate-pulse">
-                <div className="h-4 w-28 bg-neutral-200 dark:bg-zinc-800 rounded"></div>
-                <div className="h-9 w-20 bg-neutral-200 dark:bg-zinc-800 rounded-xl"></div>
+              <div className="flex h-12 w-full items-center justify-center opacity-80 mix-blend-multiply dark:mix-blend-screen">
+                <Lottie 
+                  animationData={loadingGray} 
+                  loop={true} 
+                  className="h-14 w-14" 
+                />
               </div>
             ) : session ? (
               <div className="flex flex-col gap-3 bg-neutral-100/50 dark:bg-zinc-900/50 border border-neutral-200/40 dark:border-zinc-800/40 p-4 rounded-2xl">
                 
-                {/* Mobile User Info & Profile Trigger */}
                 <Link href={profileHref} onClick={() => setIsOpen(false)} className="relative flex items-center gap-3 border-b border-neutral-200/60 dark:border-zinc-800/60 pb-2">
                   <div className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-green-500/20">
                     <Image 
@@ -218,7 +223,6 @@ export default function Navbar() {
                   </div>
                 </Link>
 
-                {/* Mobile Extra Navigation Buttons */}
                 <div className="flex justify-between items-center pt-1">
                   <Link href={dashboardHref} onClick={() => setIsOpen(false)}>
                     <Button className="bg-green-600/10 hover:bg-green-600 text-green-600 dark:text-green-400 hover:text-white text-xs font-bold h-9 px-3 rounded-xl flex items-center gap-1.5">

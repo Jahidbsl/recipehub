@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import { Card, Input, Button, TextField, Label } from "@heroui/react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, UploadCloud } from "lucide-react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+import loadingGray from "@/assets/loading_gray.json";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -101,7 +105,6 @@ export default function RegisterPage() {
           onSuccess: async () => {
             toast.success("Registration successful!");
 
-            // Auto Sign In
             await authClient.signIn.email({
               email,
               password,
@@ -125,42 +128,44 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 p-4 dark:bg-zinc-950">
-      <Card className="w-full max-w-md p-2">
-        <Card.Header className="flex flex-col items-center justify-center gap-1 text-center">
-          <Card.Title className="text-2xl font-bold">
+    <div className="flex min-h-screen items-center justify-center bg-neutral-50 p-4 dark:bg-zinc-950 transition-colors duration-300">
+      <Card className="w-full max-w-md border border-neutral-200/60 bg-white p-6 shadow-xl dark:border-zinc-800/60 dark:bg-zinc-900/50 rounded-2xl">
+        <Card.Header className="flex flex-col items-center justify-center gap-1.5 text-center p-0 pb-6">
+          <Card.Title className="text-2xl font-black tracking-tight text-neutral-900 dark:text-zinc-50">
             Join RecipeHub 🍳
           </Card.Title>
-          <Card.Description className="text-sm text-neutral-500">
+          <Card.Description className="text-sm text-neutral-500 dark:text-zinc-400">
             Start sharing your passion for cooking today
           </Card.Description>
         </Card.Header>
 
-        <Card.Content>
-          <form onSubmit={handleRegister} className="space-y-4">
-            <TextField isRequired name="name" className="w-full">
-              <Label>Full Name</Label>
+        <Card.Content className="p-0">
+          <form onSubmit={handleRegister} className="space-y-5">
+            <TextField isRequired name="name" className="w-full space-y-1.5">
+              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">Full Name</Label>
               <Input
                 type="text"
                 placeholder="Enter your full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                className="w-full"
               />
             </TextField>
 
-            <TextField isRequired name="email" className="w-full">
-              <Label>Email Address</Label>
+            <TextField isRequired name="email" className="w-full space-y-1.5">
+              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">Email Address</Label>
               <Input
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="w-full"
               />
             </TextField>
 
-            <TextField name="image" className="w-full">
-              <Label>Profile Image</Label>
-              <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl p-4 transition-colors hover:border-green-500 bg-neutral-100/50 dark:bg-zinc-900/50">
+            <TextField name="image" className="w-full space-y-1.5">
+              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">Profile Image</Label>
+              <div className="relative flex flex-col items-center justify-center border border-dashed border-neutral-200 dark:border-zinc-800 rounded-xl p-5 transition-all duration-200 hover:border-green-500 bg-neutral-50/50 dark:bg-zinc-950/30">
                 <input
                   type="file"
                   accept="image/*"
@@ -170,7 +175,7 @@ export default function RegisterPage() {
 
                 {imagePreview ? (
                   <div className="flex flex-col items-center gap-2">
-                    <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-green-500 shadow-sm">
+                    <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-green-500/10 shadow-sm">
                       <Image
                         src={imagePreview}
                         alt="Profile Preview"
@@ -178,29 +183,17 @@ export default function RegisterPage() {
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <span className="text-xs text-neutral-500 max-w-[200px] truncate">
+                    <span className="text-xs font-medium text-neutral-500 dark:text-zinc-400 max-w-[220px] truncate">
                       {imageFile?.name}
                     </span>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center text-center gap-1">
-                    <svg
-                      className="w-8 h-8 text-neutral-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                  <div className="flex flex-col items-center text-center gap-1.5">
+                    <UploadCloud className="w-7 h-7 text-neutral-400" />
+                    <span className="text-sm font-semibold text-neutral-600 dark:text-zinc-400">
                       Click to upload file
                     </span>
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-neutral-400 dark:text-zinc-500">
                       Supports PNG, JPG, JPEG
                     </span>
                   </div>
@@ -208,9 +201,8 @@ export default function RegisterPage() {
               </div>
             </TextField>
 
-            <TextField isRequired name="password" className="w-full">
-              <Label>Password</Label>
-
+            <TextField isRequired name="password" className="w-full space-y-1.5">
+              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">Password</Label>
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
@@ -219,11 +211,10 @@ export default function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pr-10"
                 />
-
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 text-gray-500"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 text-neutral-400 hover:text-neutral-600 dark:hover:text-zinc-300 transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -232,19 +223,25 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              className="w-full bg-green-600 text-white font-semibold shadow-md hover:bg-green-700"
-              isLoading={loading}
+              disabled={loading}
+              className="w-full bg-green-600 text-white font-semibold h-11 rounded-xl shadow-md shadow-green-600/10 hover:bg-green-700 transition-all duration-200 flex items-center justify-center overflow-hidden"
             >
-              Sign Up
+              {loading ? (
+                <div className="flex h-full w-full items-center justify-center opacity-90 mix-blend-multiply dark:mix-blend-screen scale-125">
+                  <Lottie animationData={loadingGray} loop={true} className="h-6 w-6" />
+                </div>
+              ) : (
+                "Sign Up"
+              )}
             </Button>
           </form>
         </Card.Content>
 
-        <Card.Footer className="flex justify-center text-sm text-neutral-600 dark:text-neutral-400">
-          <span>Already have an account? </span>
+        <Card.Footer className="flex justify-center text-sm text-neutral-500 dark:text-zinc-400 p-0 pt-5 mt-2 border-t border-neutral-100 dark:border-zinc-900">
+          <span>Already have an account?</span>
           <Link
             href="/auth/signin"
-            className="text-green-600 font-semibold ml-1 hover:underline"
+            className="text-green-600 font-bold ml-1.5 hover:underline dark:text-green-500"
           >
             Sign In instead
           </Link>

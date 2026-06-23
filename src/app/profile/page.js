@@ -5,12 +5,31 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import { Button, Card } from "@heroui/react";
-import { Shield, User, Mail, Calendar, Key, Save, Camera, Sparkles, CreditCard } from "lucide-react";
+import {
+  Shield,
+  User,
+  Mail,
+  Calendar,
+  Key,
+  Save,
+  Camera,
+  Sparkles,
+  CreditCard,
+} from "lucide-react";
 import { toast } from "react-toastify";
 
-import { getPlanById } from "@/lib/api/plans"; 
+import { getPlanById } from "@/lib/api/plans";
 
-function CustomInput({ label, type = "text", value, onChange, disabled, placeholder, startContent, description }) {
+function CustomInput({
+  label,
+  type = "text",
+  value,
+  onChange,
+  disabled,
+  placeholder,
+  startContent,
+  description,
+}) {
   return (
     <div className="w-full flex flex-col gap-1.5">
       {label && (
@@ -18,11 +37,13 @@ function CustomInput({ label, type = "text", value, onChange, disabled, placehol
           {label}
         </label>
       )}
-      <div className={`relative flex items-center rounded-xl border transition-all duration-200 ${
-        disabled
-          ? "bg-neutral-100 dark:bg-zinc-900 border-neutral-200 dark:border-zinc-800 opacity-70"
-          : "bg-white dark:bg-zinc-900/50 border-neutral-200 dark:border-zinc-800 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/20"
-      }`}>
+      <div
+        className={`relative flex items-center rounded-xl border transition-all duration-200 ${
+          disabled
+            ? "bg-neutral-100 dark:bg-zinc-900 border-neutral-200 dark:border-zinc-800 opacity-70"
+            : "bg-white dark:bg-zinc-900/50 border-neutral-200 dark:border-zinc-800 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/20"
+        }`}
+      >
         {startContent && (
           <div className="absolute left-3.5 text-neutral-400 pointer-events-none">
             {startContent}
@@ -57,7 +78,7 @@ export default function ProfilePage() {
   const [imagePreview, setImagePreview] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  
+
   // 💡 প্ল্যান ডাটা এবং প্ল্যান লোডিং এর জন্য স্টেট
   const [userPlan, setUserPlan] = useState(null);
   const [planLoading, setPlanLoading] = useState(false);
@@ -72,7 +93,7 @@ export default function ProfilePage() {
       } else {
         setName(session.user.name || "");
         setImagePreview(session.user.image || "");
-        
+
         // 💡 ২. ইউজার ডাটা পাওয়ার পর প্ল্যান এপিআই কল করা
         const fetchUserPlan = async () => {
           try {
@@ -148,7 +169,6 @@ export default function ProfilePage() {
       toast.success("Profile updated successfully!");
       setSelectedFile(null);
       router.refresh();
-
     } catch (error) {
       console.error("Update error:", error);
       toast.error(error?.message || "Something went wrong!");
@@ -173,7 +193,6 @@ export default function ProfilePage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-neutral-50/50 py-10 dark:bg-zinc-950/50 transition-colors duration-300">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-
         <div className="mb-8 flex flex-col gap-2">
           <h1 className="text-3xl font-black tracking-tight text-neutral-950 dark:text-zinc-50">
             Account Settings
@@ -184,15 +203,16 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-
           {/* Left Column: Avatar & Dynamic Plan Badge */}
           <div className="md:col-span-1 space-y-6">
             <Card className="border border-neutral-200/60 bg-white shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/50">
               <div className="flex flex-col items-center py-8 px-4 text-center">
-
                 <div className="relative group h-28 w-28 overflow-hidden rounded-full ring-4 ring-green-500/10 dark:ring-green-500/20 bg-neutral-100 dark:bg-zinc-800">
                   <Image
-                    src={imagePreview || "https://api.dicebear.com/7.x/avataaars/svg?seed=user"}
+                    src={
+                      imagePreview ||
+                      "https://api.dicebear.com/7.x/avataaars/svg?seed=user"
+                    }
                     alt="Profile Avatar"
                     fill
                     priority
@@ -215,15 +235,17 @@ export default function ProfilePage() {
                   {name}
                 </h3>
 
-                <div className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
-                  isAdmin
-                    ? "bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400"
-                    : "bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400"
-                }`}>
+                <div
+                  className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
+                    isAdmin
+                      ? "bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400"
+                      : "bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400"
+                  }`}
+                >
                   {isAdmin ? <Shield size={12} /> : <User size={12} />}
                   {user.role || "User"}
                 </div>
-                
+
                 {selectedFile && (
                   <span className="text-[10px] text-orange-500 font-medium mt-2 animate-pulse">
                     Unsaved changes (*image)
@@ -233,53 +255,62 @@ export default function ProfilePage() {
             </Card>
 
             {/* 💡 ৩. ডাইনামিক প্ল্যান কার্ড (ডিজাইন মেইন্টেন করে বামে অ্যাড করা হলো) */}
-            <Card className="border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/50">
-              <h4 className="text-xs font-bold text-neutral-400 dark:text-zinc-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <CreditCard size={14} /> Membership Plan
-              </h4>
-              
-              {planLoading ? (
-                <div className="h-12 bg-neutral-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      {/* প্ল্যানের নাম বড় হাতের অক্ষরে দেখাবে, নাম না পেলে ডাটাবেজের আইডি দেখাবে */}
-                      <p className="text-base font-black text-neutral-900 dark:text-zinc-50 capitalize">
-                        {(userPlan?.name || user.plan || "Free")}
-                      </p>
-                      <p className="text-xs text-neutral-500 dark:text-zinc-400">
-                        {user.plan === "free" ? "Limited access" : "Full premium access"}
-                      </p>
+            {!isAdmin && (
+              <Card className="border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/50">
+                <h4 className="text-xs font-bold text-neutral-400 dark:text-zinc-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <CreditCard size={14} /> Membership Plan
+                </h4>
+
+                {planLoading ? (
+                  <div className="h-12 bg-neutral-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-base font-black text-neutral-900 dark:text-zinc-50 capitalize">
+                          {userPlan?.name || user.plan || "Free"}
+                        </p>
+                        <p className="text-xs text-neutral-500 dark:text-zinc-400">
+                          {user.plan === "free"
+                            ? "Limited access"
+                            : "Full premium access"}
+                        </p>
+                      </div>
+                      <span
+                        className={`p-2 rounded-xl ${
+                          user.plan !== "free"
+                            ? "bg-amber-500/10 text-amber-500"
+                            : "bg-neutral-100 dark:bg-zinc-800 text-neutral-500"
+                        }`}
+                      >
+                        <Sparkles
+                          size={20}
+                          className={
+                            user.plan !== "free" ? "animate-spin-slow" : ""
+                          }
+                        />
+                      </span>
                     </div>
-                    <span className={`p-2 rounded-xl ${
-                      user.plan !== "free" 
-                        ? "bg-amber-500/10 text-amber-500" 
-                        : "bg-neutral-100 dark:bg-zinc-800 text-neutral-500"
-                    }`}>
-                      <Sparkles size={20} className={user.plan !== "free" ? "animate-spin-slow" : ""} />
-                    </span>
+
+                    {user.plan === "free" && (
+                      <Button
+                        size="sm"
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl mt-1 text-xs shadow-sm"
+                        onPress={() => router.push("/plans")}
+                      >
+                        Upgrade to Pro
+                      </Button>
+                    )}
                   </div>
-                  
-                  {user.plan === "free" && (
-                    <Button 
-                      size="sm"
-                      className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl mt-1 text-xs shadow-sm"
-                      onPress={() => router.push("/plans")}
-                    >
-                      Upgrade to Pro
-                    </Button>
-                  )}
-                </div>
-              )}
-            </Card>
+                )}
+              </Card>
+            )}
           </div>
 
           {/* Right Column: Form */}
           <div className="md:col-span-2">
             <Card className="border border-neutral-200/60 bg-white shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/50">
               <div className="p-6 sm:p-8 space-y-6">
-
                 <h2 className="text-xl font-bold text-neutral-900 dark:text-zinc-50 border-b border-neutral-200/60 dark:border-zinc-800/60 pb-3 flex items-center gap-2">
                   <User size={18} className="text-green-600" />
                   Personal Information
@@ -322,7 +353,9 @@ export default function ProfilePage() {
                   <CustomInput
                     type="text"
                     label="Verified Status"
-                    value={user.emailVerified ? "Verified" : "Pending Verification"}
+                    value={
+                      user.emailVerified ? "Verified" : "Pending Verification"
+                    }
                     disabled
                     startContent={<Calendar size={16} />}
                   />
@@ -338,11 +371,9 @@ export default function ProfilePage() {
                     {isUpdating ? "Saving Profile..." : "Save Changes"}
                   </Button>
                 </div>
-
               </div>
             </Card>
           </div>
-
         </div>
       </div>
     </div>

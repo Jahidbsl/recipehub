@@ -5,6 +5,8 @@ import Lottie from "lottie-react";
 
 import loading from "@/assets/loading_gray.json"
 
+
+
 export default function GlobalLoading() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-zinc-950 transition-colors duration-300">

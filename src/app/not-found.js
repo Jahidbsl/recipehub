@@ -2,36 +2,33 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-// লটি ফাইলটি ইম্পোর্ট করা হলো (আপনার ফাইলের পাথ অনুযায়ী চেক করে নিতে পারেন)
-import warningAnim from "@/assets/Warning Status.json";
+// লটি ফাইলটি ইম্পোর্ট করা হলো
+import notFoundAnim from "@/assets/pagenotfound - 404.json";
 
-// Hydration/SSR এরর এড়ানোর জন্য ডায়নামিক ইম্পোর্ট
+// SSR (Server-Side Rendering) ডিজেবল করে লটি প্লেয়ার লোড করা হচ্ছে 
+// কারণ লটি উইন্ডো/ডকুমেন্ট অবজেক্ট ব্যবহার করে যা সার্ভারে থাকে না
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
-export default function Forbidden() {
+export default function NotFound() {
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center bg-neutral-50 px-4 text-center dark:bg-zinc-950 transition-colors duration-300">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 text-center dark:bg-zinc-950">
       <div className="w-full max-w-md md:max-w-lg">
-        
         {/* লটি অ্যানিমেশন কন্টেইনার */}
-        <div className="mx-auto h-56 w-full sm:h-64 md:h-72">
+        <div className="mx-auto h-64 w-full sm:h-80 md:h-96">
           <Lottie 
-            animationData={warningAnim} 
+            animationData={notFoundAnim} 
             loop={true} 
             className="h-full w-full"
           />
         </div>
 
         {/* টেক্সট কন্টেন্ট */}
-        <div className="mt-4 space-y-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600 dark:bg-red-500/20 dark:text-red-400">
-            403 Access Denied
-          </div>
+        <div className="mt-6 space-y-3">
           <h1 className="text-2xl font-black tracking-tight text-neutral-900 sm:text-3xl dark:text-zinc-50">
-            Forbidden Area
+            Oops! Page Not Found
           </h1>
           <p className="mx-auto max-w-sm text-sm text-neutral-500 dark:text-zinc-400">
-            Sorry, you don't have admin privileges to access this page. If you think this is a mistake, please contact support.
+            The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
           </p>
         </div>
 
@@ -41,10 +38,9 @@ export default function Forbidden() {
             href="/"
             className="inline-flex h-11 items-center justify-center rounded-xl bg-green-600 px-6 font-semibold text-white shadow-md shadow-green-600/10 transition-all duration-200 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/50"
           >
-            Back to Dashboard
+            Back to Home
           </Link>
         </div>
-
       </div>
     </div>
   );
