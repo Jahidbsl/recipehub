@@ -1,7 +1,7 @@
 "use server"
 
 import { stripe } from "@/lib/stripe";
-import { getUserSession } from "@/lib/core/session";
+
 import { headers } from "next/headers";
 
 const baseurl = process.env.NEXT_PUBLIC_BASE_URL
@@ -103,5 +103,36 @@ export const purchaseRecipe = async (recipeId, recipeName, price, userId, userEm
   }
 };
 
+// ── FIXED DELETE FUNCTION ──
+export const deleteRecipe = async (id) => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/delete/${id}`, // delate কে delete করা হয়েছে
+      {
+        method: "DELETE",
+      }
+    );
+    return await res.json();
+  } catch (error) {
+    console.error("Error deleting recipe:", error);
+    return { success: false, message: "Network error" };
+  }
+};
+
+// ── FIXED UPDATE FUNCTION ──
+export const updateRecipe = async (id, recipeData) => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/update/${id}`, // Changed delate -> update to match backend
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(recipeData),
+    }
+  );
+
+  return await res.json();
+};
 
 

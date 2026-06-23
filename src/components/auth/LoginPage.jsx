@@ -23,7 +23,7 @@ function LoginContent() {
   
   const authError = searchParams.get("error");
   const hasShownError = useRef(false);
-
+const callbackUrl = searchParams.get("callbackUrl") || "/";
   useEffect(() => {
     if (authError && !hasShownError.current) {
       const cleanMessage = decodeURIComponent(authError).replace(/\+/g, " ");
@@ -43,14 +43,14 @@ function LoginContent() {
       const { data, error } = await authClient.signIn.email({ 
         email, 
         password,
-        callbackURL: "/" 
+        callbackURL: callbackUrl 
       });
 
       if (error) {
         toast.error(error.message || "Invalid credentials! ❌");
       } else {
         toast.success("Successfully logged in! 🎉");
-        router.push("/");
+        router.push(callbackUrl);
       }
     } catch (err) {
       toast.error("Something went wrong! ❌");
@@ -64,7 +64,7 @@ function LoginContent() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard", 
+        callbackURL: searchParams.get("callbackUrl") || "/dashboard", 
         errorCallbackURL: "/auth/signin" 
       });
       toast.success("Redirecting to Google... 🚀");
@@ -163,7 +163,7 @@ function LoginContent() {
 
         <Card.Footer className="flex justify-center text-sm text-neutral-500 dark:text-zinc-400 p-0 pt-5 mt-5 border-t border-neutral-100 dark:border-zinc-900">
           <span>New to RecipeHub?</span>
-          <Link href="/auth/signup" className="text-green-600 font-bold ml-1.5 hover:underline dark:text-green-500">
+          <Link href={`/auth/signup?callbackUrl=${encodeURIComponent(searchParams.get("callbackUrl") || "/")}`} className="text-green-600 font-bold ml-1.5 hover:underline dark:text-green-500">
             Create an account
           </Link>
         </Card.Footer>

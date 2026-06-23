@@ -8,10 +8,13 @@ import {
   ArrowUpRight,
   Award,
   Sparkles,
-  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { getRecipeByUser, getUserFavorites } from "@/lib/api/recipes";
+import dynamic from "next/dynamic";
+import loadingGray from "@/assets/loading_gray.json";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 // ─── Small helper ─────────────────────────────────────────────────
 function StatusBadge({ status }) {
@@ -24,7 +27,6 @@ function StatusBadge({ status }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────────
-// `user` is passed from the Server Component (page.jsx)
 const UserDashboardPage = ({ user }) => {
   const [recipes,   setRecipes]   = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -72,11 +74,17 @@ const UserDashboardPage = ({ user }) => {
 
   const displayName = user?.name ?? user?.email ?? "Chef";
 
-  // ─────────────────────────────────────────────────────────────────
+  // ─── Modern & Small Lottie Loading State ─────────────────────────
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] text-zinc-400">
-        <Loader2 size={32} className="animate-spin" />
+      <div className="flex items-center justify-center min-h-[60vh] bg-neutral-50/50 dark:bg-zinc-950/50 transition-colors duration-300">
+        <div className="flex h-12 w-12 items-center justify-center opacity-90 mix-blend-multiply dark:mix-blend-screen">
+          <Lottie 
+            animationData={loadingGray} 
+            loop={true} 
+            className="h-10 w-10" 
+          />
+        </div>
       </div>
     );
   }
@@ -152,7 +160,7 @@ const UserDashboardPage = ({ user }) => {
           {recentRecipes.length === 0 ? (
             <div className="py-10 text-center text-zinc-400 text-xs">
               No recipes yet.{" "}
-              <Link href="/dashboard/add-recipe" className="text-emerald-500 underline">
+              <Link href="/dashboard/recipes/add" className="text-emerald-500 underline">
                 Add your first recipe →
               </Link>
             </div>
@@ -163,7 +171,6 @@ const UserDashboardPage = ({ user }) => {
                   <tr className="bg-zinc-50 dark:bg-zinc-800/40 text-zinc-400 uppercase tracking-wider font-medium border-b border-zinc-100 dark:border-zinc-800">
                     <th className="p-3">Name</th>
                     <th className="p-3 hidden sm:table-cell">Category</th>
-                    
                     <th className="p-3">Status</th>
                   </tr>
                 </thead>
@@ -179,7 +186,6 @@ const UserDashboardPage = ({ user }) => {
                       <td className="p-3 text-zinc-500 hidden sm:table-cell">
                         {recipe.category ?? "—"}
                       </td>
-                     
                       <td className="p-3">
                         <StatusBadge status={recipe.status ?? "Published"} />
                       </td>

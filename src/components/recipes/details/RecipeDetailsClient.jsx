@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Heart, Bookmark, Flag, ShoppingCart, Clock, Tag, Globe, ChefHat, CheckCircle, X } from "lucide-react";
-import Image from "next/image"; // নেক্সট ইমেজ ইম্পোর্ট করা হলো
-import { useRouter } from "next/navigation"; // ইউআরএল ক্লিন করার জন্য
+import Image from "next/image"; 
+import { useRouter, usePathname } from "next/navigation"; // usePathname যুক্ত করা হলো কারেন্ট পেজ ট্র্যাক করার জন্য
 
 import { ReportModal } from "./ReportModal";
 import { purchaseRecipe, toggleFavorite, toggleLike } from "@/lib/actions/recipes";
@@ -23,13 +23,13 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const router = useRouter();
+  const pathname = usePathname(); // বর্তমান পেজের পাথ নেওয়ার জন্য
 
   const {
     _id, name, category, cuisine, prepTime, difficulty,
     image, ingredients, instructions, userEmail, userImage, createdAt, price,
   } = recipe;
 
-  // সাকসেস মোডাল ট্রিগার এবং ৫ সেকেন্ডের অটো-ক্লোজ টাইমার লজিক
   useEffect(() => {
     if (showSuccessModal) {
       setIsModalOpen(true);
@@ -44,25 +44,48 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
 
   const closeModal = () => {
     setIsModalOpen(false);
-    // মোডাল বন্ধের পর ইউআরএল থেকে সেশন আইডি রিমুভ করা যেন রিফ্রেশে মোডাল আবার না আসে
     router.replace(`/browse-recipes/${_id}`);
   };
 
+  // লগইন না থাকলে রিডাইরেক্ট করার হেল্পার ফাংশন
+  const redirectToLogin = () => {
+    // বর্তমান পেজের URL এনকোড করে কোয়েরি প্যারাম হিসেবে পাঠানো হচ্ছে
+    const callbackUrl = encodeURIComponent(pathname);
+    router.push(`/auth/signin?callbackUrl=${callbackUrl}`);
+  };
+
   async function handleLike() {
-    if (!user) return alert("Login করো আগে!");
+    if (!user) {
+      redirectToLogin();
+      return;
+    }
     const res = await toggleLike(_id, user.id);
     setLiked(res.liked);
     setLikeCount((c) => res.liked ? c + 1 : c - 1);
   }
 
   async function handleFavorite() {
-    if (!user) return alert("Login করো আগে!");
+    if (!user) {
+      redirectToLogin();
+      return;
+    }
     const res = await toggleFavorite(_id, user.id);
     setFavorited(res.favorited);
   }
 
+  async function handleReportTrigger() {
+    if (!user) {
+      redirectToLogin();
+      return;
+    }
+    setShowReport(true);
+  }
+
   async function handlePurchase() {
-    if (!user) return alert("Login first");
+    if (!user) {
+      redirectToLogin();
+      return;
+    }
     setPurchasing(true);
     const res = await purchaseRecipe(_id, name, price, user.id, user.email);
     if (res?.url) {
@@ -76,7 +99,7 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
   return (
     <>
       <div className="space-y-6">
-        {/* Main Recipe Image using Next.js Image Component */}
+        {/* Main Recipe Image */}
         {image ? (
           <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden shadow-sm">
             <Image 
@@ -157,7 +180,7 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
           </button>
 
           <button
-            onClick={() => setShowReport(true)}
+            onClick={handleReportTrigger}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
           >
             <Flag size={15} /> Report
@@ -207,7 +230,7 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
             </div>
           ) : (
             <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-sm font-medium text-blue-700 dark:text-blue-300">
-              {userEmail?.[0]?.toUpperCase()}
+              {userEmail?.toUpperCase()}
             </div>
           )}
           <div>
@@ -245,7 +268,6 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
               </span>. Happy Cooking!
             </p>
 
-            {/* ৫ সেকেন্ডের স্লাইডিং প্রোগ্রেস বার ইন্ডিকেটর */}
             <div className="w-full h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full mt-5 overflow-hidden">
               <div className="h-full bg-emerald-500 animate-[shrink-width_5s_linear_forwards]" />
             </div>

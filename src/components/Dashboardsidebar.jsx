@@ -42,7 +42,7 @@ const USER_NAV = [
         label: "Add recipe",
         href: "/dashboard/recipes/add",
         icon: PlusCircle,
-        badge: "1/2",
+       
         badgeVariant: "warn",
         noteKey: "add-recipe",
       },
@@ -74,13 +74,13 @@ const ADMIN_NAV = [
         label: "Manage users",
         href: "/admin/dashboard/manage-users",
         icon: Users,
-        badge: "124",
+       
       },
       {
         label: "Manage recipes",
         href: "/admin/dashboard/manage-recipes",
         icon: UtensilsCrossed,
-        badge: "56",
+        
       },
       { label: "Reports", href: "/admin/dashboard/manage-reports", icon: BarChart3 },
     ],

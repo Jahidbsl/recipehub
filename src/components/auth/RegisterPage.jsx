@@ -6,7 +6,7 @@ import { Eye, EyeOff, UploadCloud } from "lucide-react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import loadingGray from "@/assets/loading_gray.json";
@@ -22,6 +22,11 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+
+  // ইউআরএল থেকে callbackUrl নেওয়া হচ্ছে, না থাকলে ডিফল্ট হোম পেজ ("/")
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_KEY;
 
@@ -110,7 +115,7 @@ export default function RegisterPage() {
               password,
             });
 
-            router.push("/");
+            router.push(callbackUrl);
           },
 
           onError: (ctx) => {
@@ -142,7 +147,9 @@ export default function RegisterPage() {
         <Card.Content className="p-0">
           <form onSubmit={handleRegister} className="space-y-5">
             <TextField isRequired name="name" className="w-full space-y-1.5">
-              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">Full Name</Label>
+              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">
+                Full Name
+              </Label>
               <Input
                 type="text"
                 placeholder="Enter your full name"
@@ -153,7 +160,9 @@ export default function RegisterPage() {
             </TextField>
 
             <TextField isRequired name="email" className="w-full space-y-1.5">
-              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">Email Address</Label>
+              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">
+                Email Address
+              </Label>
               <Input
                 type="email"
                 placeholder="Enter your email"
@@ -164,7 +173,9 @@ export default function RegisterPage() {
             </TextField>
 
             <TextField name="image" className="w-full space-y-1.5">
-              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">Profile Image</Label>
+              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">
+                Profile Image
+              </Label>
               <div className="relative flex flex-col items-center justify-center border border-dashed border-neutral-200 dark:border-zinc-800 rounded-xl p-5 transition-all duration-200 hover:border-green-500 bg-neutral-50/50 dark:bg-zinc-950/30">
                 <input
                   type="file"
@@ -201,8 +212,14 @@ export default function RegisterPage() {
               </div>
             </TextField>
 
-            <TextField isRequired name="password" className="w-full space-y-1.5">
-              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">Password</Label>
+            <TextField
+              isRequired
+              name="password"
+              className="w-full space-y-1.5"
+            >
+              <Label className="text-sm font-semibold text-neutral-700 dark:text-zinc-300">
+                Password
+              </Label>
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
@@ -228,7 +245,11 @@ export default function RegisterPage() {
             >
               {loading ? (
                 <div className="flex h-full w-full items-center justify-center opacity-90 mix-blend-multiply dark:mix-blend-screen scale-125">
-                  <Lottie animationData={loadingGray} loop={true} className="h-6 w-6" />
+                  <Lottie
+                    animationData={loadingGray}
+                    loop={true}
+                    className="h-6 w-6"
+                  />
                 </div>
               ) : (
                 "Sign Up"
