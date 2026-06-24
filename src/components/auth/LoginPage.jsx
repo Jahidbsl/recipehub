@@ -40,7 +40,7 @@ function LoginContent() {
     const checkBlockStatus = async () => {
       const { data: session } = await authClient.useSession();
       if (session?.user?.isBlocked === true || session?.user?.isBlocked === "true") {
-        toast.error("Your account has been blocked by the admin! lul 🚫", {
+        toast.error("Your account has been blocked by the admin! 🚫", {
           position: "top-center",
           toastId: "blocked-session-toast"
         });

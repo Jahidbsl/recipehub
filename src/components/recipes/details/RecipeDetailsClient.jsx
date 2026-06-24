@@ -56,9 +56,9 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
     }
 
     if (user?.isBlocked === true || user?.isBlocked === "true") {
-      toast.error("Your account has been blocked by the admin!cull 🚫", {
-        position: "top-center"
-      });
+      // toast.error("Your account has been blocked by the admin!cull 🚫", {
+      //   position: "top-center"
+      // });
       router.push("/auth/signin?error=Your+account+has+been+blocked+by+the+admin!+🚫");
       return true;
     }
