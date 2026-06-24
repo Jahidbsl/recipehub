@@ -64,7 +64,7 @@ const callbackUrl = searchParams.get("callbackUrl") || "/";
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: searchParams.get("callbackUrl") || "/dashboard", 
+        callbackURL: searchParams.get("callbackUrl") || "/", 
         errorCallbackURL: "/auth/signin" 
       });
       toast.success("Redirecting to Google... 🚀");
