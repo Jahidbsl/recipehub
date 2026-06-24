@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { Heart, Bookmark, Flag, ShoppingCart, Clock, Tag, Globe, ChefHat, CheckCircle, X } from "lucide-react";
 import Image from "next/image"; 
-import { useRouter, usePathname } from "next/navigation"; // usePathname যুক্ত করা হলো কারেন্ট পেজ ট্র্যাক করার জন্য
+import { useRouter, usePathname } from "next/navigation";
+import { toast } from "react-toastify";
 
 import { ReportModal } from "./ReportModal";
 import { purchaseRecipe, toggleFavorite, toggleLike } from "@/lib/actions/recipes";
@@ -23,7 +24,7 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const router = useRouter();
-  const pathname = usePathname(); // বর্তমান পেজের পাথ নেওয়ার জন্য
+  const pathname = usePathname();
 
   const {
     _id, name, category, cuisine, prepTime, difficulty,
@@ -47,45 +48,48 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
     router.replace(`/browse-recipes/${_id}`);
   };
 
-  // লগইন না থাকলে রিডাইরেক্ট করার হেল্পার ফাংশন
-  const redirectToLogin = () => {
-    // বর্তমান পেজের URL এনকোড করে কোয়েরি প্যারাম হিসেবে পাঠানো হচ্ছে
-    const callbackUrl = encodeURIComponent(pathname);
-    router.push(`/auth/signin?callbackUrl=${callbackUrl}`);
+  const handleRestrictionCheck = () => {
+    if (!user) {
+      const callbackUrl = encodeURIComponent(pathname);
+      router.push(`/auth/signin?callbackUrl=${callbackUrl}`);
+      return true;
+    }
+
+    if (user?.isBlocked === true || user?.isBlocked === "true") {
+      toast.error("Your account has been blocked by the admin! 🚫", {
+        position: "top-center"
+      });
+      router.push("/auth/signin?error=Your+account+has+been+blocked+by+the+admin!+🚫");
+      return true;
+    }
+
+    return false;
   };
 
   async function handleLike() {
-    if (!user) {
-      redirectToLogin();
-      return;
-    }
+    if (handleRestrictionCheck()) return;
+
     const res = await toggleLike(_id, user.id);
     setLiked(res.liked);
     setLikeCount((c) => res.liked ? c + 1 : c - 1);
   }
 
   async function handleFavorite() {
-    if (!user) {
-      redirectToLogin();
-      return;
-    }
+    if (handleRestrictionCheck()) return;
+
     const res = await toggleFavorite(_id, user.id);
     setFavorited(res.favorited);
   }
 
   async function handleReportTrigger() {
-    if (!user) {
-      redirectToLogin();
-      return;
-    }
+    if (handleRestrictionCheck()) return;
+
     setShowReport(true);
   }
 
   async function handlePurchase() {
-    if (!user) {
-      redirectToLogin();
-      return;
-    }
+    if (handleRestrictionCheck()) return;
+
     setPurchasing(true);
     const res = await purchaseRecipe(_id, name, price, user.id, user.email);
     if (res?.url) {
@@ -99,7 +103,6 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
   return (
     <>
       <div className="space-y-6">
-        {/* Main Recipe Image */}
         {image ? (
           <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden shadow-sm">
             <Image 
@@ -117,7 +120,6 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
           </div>
         )}
 
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{name}</h1>
@@ -146,14 +148,12 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
             </div>
           </div>
 
-          {/* Like count */}
           <div className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400 shrink-0">
             <Heart size={16} className={liked ? "fill-rose-500 text-rose-500" : ""} />
             <span>{likeCount} likes</span>
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex flex-wrap gap-3">
           <button
             onClick={handleLike}
@@ -196,7 +196,6 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
           </button>
         </div>
 
-        {/* Ingredients */}
         {ingredients && (
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 space-y-3">
             <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Ingredients</h2>
@@ -206,7 +205,6 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
           </div>
         )}
 
-        {/* Instructions */}
         {instructions && (
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 space-y-3">
             <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Instructions</h2>
@@ -216,7 +214,6 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
           </div>
         )}
 
-        {/* Author Footer */}
         <div className="flex items-center gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
           {userImage ? (
             <div className="relative w-9 h-9 rounded-full overflow-hidden">
@@ -242,7 +239,6 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
         </div>
       </div>
 
-      {/* --- পেমেন্ট সাকসেস মোডাল UI --- */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl max-w-sm w-full text-center shadow-xl relative animate-[scale-up_0.2s_ease-out]">
@@ -275,7 +271,6 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
         </div>
       )}
 
-      {/* Report Modal */}
       {showReport && (
         <ReportModal
           recipeId={_id}
