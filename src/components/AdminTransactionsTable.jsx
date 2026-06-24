@@ -1,9 +1,10 @@
 "use client";
-
 import { getAdminTransactions } from "@/lib/api/recipes";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+// Lucide icons integration
+import { ChevronLeft, ChevronRight, CreditCard } from "lucide-react"; 
 
 export default function AdminTransactionsTable() {
   const [transactions, setTransactions] = useState([]);
@@ -52,10 +53,9 @@ export default function AdminTransactionsTable() {
 
   if (loading) {
     return (
-      // ⏳ Loading State Section (Height significantly reduced)
-      <div className="flex justify-center items-center py-10 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-gray-100 dark:border-slate-900">
-        <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-emerald-500"></div>
-        <span className="ml-3 text-sm font-medium text-gray-500 dark:text-gray-400">
+      <div className="max-w-5xl mx-auto my-6 flex justify-center items-center py-10 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-gray-100 dark:border-slate-900">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-500"></div>
+        <span className="ml-3 text-xs font-medium text-gray-500 dark:text-gray-400">
           Loading Financial Ledger...
         </span>
       </div>
@@ -63,18 +63,22 @@ export default function AdminTransactionsTable() {
   }
 
   return (
-    <div className="p-4 sm:p-5 bg-white dark:bg-slate-950 rounded-xl shadow-sm border border-gray-100 dark:border-slate-900 transition-colors duration-300">
+    // 📦 mx-auto and max-w-5xl limits width, creating perfect balance on left & right sides
+    <div className="max-w-5xl mx-auto my-4 p-4 sm:p-5 bg-white dark:bg-slate-950 rounded-xl shadow-sm border border-gray-100 dark:border-slate-900 transition-colors duration-300">
       <ToastContainer position="top-right" autoClose={2500} />
 
-      {/* Header Container Layout */}
+      {/* Header Layout */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight">
-            Financial Transactions 💳
-          </h2>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-            Total Logs Tracked: {transactions.length}
-          </p>
+        <div className="flex items-center gap-2">
+          <CreditCard className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight">
+              Financial Transactions
+            </h2>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+              Total Logs Tracked: {transactions.length}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -115,7 +119,7 @@ export default function AdminTransactionsTable() {
                   <td className="py-2 px-4 font-medium text-gray-800 dark:text-gray-200">
                     <div className="flex flex-col">
                       <span className="truncate max-w-[220px]">{tx.user}</span>
-                      <span className="text-[9px] font-semibold text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wide bg-gray-50 dark:bg-slate-900 px-1 py-0.2 rounded w-max border border-gray-100 dark:border-slate-800/50">
+                      <span className="text-[9px] font-semibold text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wide bg-gray-50 dark:bg-slate-900 px-1.5 py-0.2 rounded w-max border border-gray-100 dark:border-slate-800/50">
                         {tx.type}
                       </span>
                     </div>
@@ -150,7 +154,7 @@ export default function AdminTransactionsTable() {
                       }`}
                     >
                       <span
-                        className={`w-1 h-1 rounded-full mr-1 ${
+                        className={`w-1.5 h-1.5 rounded-full mr-1 ${
                           tx.status?.toLowerCase() === "success" ||
                           tx.status?.toLowerCase() === "active"
                             ? "bg-green-500"
@@ -167,7 +171,7 @@ export default function AdminTransactionsTable() {
         </table>
       </div>
 
-      {/* 🎛️ Compact Pagination Controls Wrapper */}
+      {/* 🎛️ Lucide Icon Pagination Controls */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-gray-100 dark:border-slate-900 bg-white dark:bg-slate-950 px-2 py-3 mt-3 transition-colors duration-300">
           <div className="flex flex-1 justify-between sm:hidden">
@@ -200,22 +204,22 @@ export default function AdminTransactionsTable() {
             </div>
             <div>
               <nav
-                className="isolate inline-flex -space-x-px rounded-md shadow-sm bg-white dark:bg-slate-950"
+                className="isolate inline-flex items-center -space-x-px rounded-md shadow-sm bg-white dark:bg-slate-950"
                 aria-label="Pagination"
               >
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center rounded-l-md border border-gray-200 dark:border-slate-800 px-2 py-1 text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-900/60 disabled:opacity-30 transition-colors"
+                  className="relative inline-flex items-center rounded-l-md border border-gray-200 dark:border-slate-800 p-1.5 text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-900/60 disabled:opacity-30 transition-colors"
                 >
-                  ⬅️
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
 
                 {Array.from({ length: totalPages }, (_, index) => (
                   <button
                     key={index + 1}
                     onClick={() => handlePageChange(index + 1)}
-                    className={`relative inline-flex items-center px-3 py-1 font-medium border transition-colors ${
+                    className={`relative inline-flex items-center px-3 py-1 font-medium border text-xs h-7 transition-colors ${
                       currentPage === index + 1
                         ? "z-10 bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500 dark:border-emerald-500"
                         : "bg-white text-gray-600 border-gray-200 dark:bg-slate-950 dark:text-gray-400 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-900/60"
@@ -228,9 +232,9 @@ export default function AdminTransactionsTable() {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="relative inline-flex items-center rounded-r-md border border-gray-200 dark:border-slate-800 px-2 py-1 text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-900/60 disabled:opacity-30 transition-colors"
+                  className="relative inline-flex items-center rounded-r-md border border-gray-200 dark:border-slate-800 p-1.5 text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-900/60 disabled:opacity-30 transition-colors"
                 >
-                  ➡️
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </nav>
             </div>
