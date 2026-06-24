@@ -1,9 +1,13 @@
+import { redirect } from "next/navigation";
 import DashboardSidebar from "@/components/Dashboardsidebar";
 import { getUserSession } from "@/lib/core/session";
 
-// app/dashboard/layout.jsx
 export default async function DashboardLayout({ children }) {
- const user = await getUserSession()
+  const user = await getUserSession();
+
+  if (user?.isBlocked === true || user?.isBlocked === "true") {
+    redirect("/auth/signin?error=Your+account+has+been+blocked+by+the+admin!+🚫");
+  }
 
   return (
     <div className="flex min-h-screen">  
