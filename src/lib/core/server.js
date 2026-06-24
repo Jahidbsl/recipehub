@@ -2,7 +2,7 @@
 
 import { getUserToken } from "./session";
 
-const baseurl = process.env.NEXT_PUBLIC_BASE_URL;
+const baseurl = process.env.NEXT_PUBLIC_BASE_URL || "https://recipehub-server-ten.vercel.app";
 
 export const authHeader = async () => {
   const token = await getUserToken();
