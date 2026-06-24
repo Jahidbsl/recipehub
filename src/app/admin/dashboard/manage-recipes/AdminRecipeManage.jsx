@@ -7,6 +7,7 @@ import Link from "next/link";
 import { toast } from "react-toastify";
 
 import { getRecipes, patchRecipeFeature, deleteRecipe } from "@/lib/api/recipes";
+import { deleteRecipeAndReports } from "@/lib/actions/reports";
 
 export default function AdminRecipeManage() {
   const [recipes, setRecipes] = useState([]);
@@ -67,15 +68,15 @@ export default function AdminRecipeManage() {
     }
   };
 
-  // 🗑️ ডিলিট লজিক (Instant UI Update)
+ // 🗑️ ডিলিট লজিক (নতুন রিপোর্ট ডিলিট API সহ)
   const handleDeleteRecipe = async (recipeId) => {
     const stringId = typeof recipeId === "object" ? recipeId?.$oid : recipeId;
     if (!stringId) return toast.error("Invalid Recipe ID");
 
-    const confirmDelete = window.confirm("Are you sure you want to permanently delete this recipe?");
+    const confirmDelete = window.confirm("Are you sure you want to permanently delete this recipe and all its reports?");
     if (!confirmDelete) return;
 
-    // ১. ব্যাকআপ রাখা
+    // ১. ব্যাকআপ রাখা (যদি কোনো কারণে এপিআই ফেইল করে)
     const previousRecipes = [...recipes];
 
     // ২. ইনস্ট্যান্ট স্ক্রিন থেকে হাওয়া করে দেওয়া (Optimistic Delete)
@@ -85,13 +86,13 @@ export default function AdminRecipeManage() {
         return id !== stringId;
       })
     );
-    toast.success("Recipe deleted successfully!");
+    toast.success("Recipe and associated reports deleted successfully!");
 
     try {
-      // ৩. ব্যাকএন্ডে ডিলিট রিকোয়েস্ট
-      await deleteRecipe(stringId);
+      // ৩. আপনার নতুন অ্যাডমিন ডিলিট এপিআই কল
+      await deleteRecipeAndReports(stringId);
     } catch (error) {
-      // ফেইল করলে রেসিপি ফিরিয়ে আনা
+      // ফেইল করলে স্ক্রিনে রেসিপি আবার ফিরিয়ে আনা
       setRecipes(previousRecipes);
       console.error("DELETE Request Failed:", error);
       toast.error("Could not delete from server. Restored recipe.");
