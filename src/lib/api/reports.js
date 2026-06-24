@@ -1,22 +1,10 @@
+import { authHeader } from "../core/server";
+
 export const getAllReports = async () => {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000";
-    const res = await fetch(`${baseUrl}/api/admin/reports`, {
-      method: "GET",
-      headers: {
-        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0",
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch reports: ${res.status}`);
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.error("Error in getAllReports api wrapper:", error);
-    return [];
-  }
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/reports`, {
+    method: "GET",
+    headers: await authHeader(), // 👈 ম্যানুয়ালি অথরাইজেশন হেডার পাস করুন
+    cache: "no-store",
+  });
+  return res.json();
 };
