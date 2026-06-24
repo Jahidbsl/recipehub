@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-// লটি ফাইলটি ইম্পোর্ট করা হলো (আপনার ফাইলের পাথ অনুযায়ী চেক করে নিতে পারেন)
+
 import warningAnim from "@/assets/Warning Status.json";
 
-// Hydration/SSR এরর এড়ানোর জন্য ডায়নামিক ইম্পোর্ট
+
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export default function Forbidden() {
@@ -13,7 +13,7 @@ export default function Forbidden() {
     <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center bg-neutral-50 px-4 text-center dark:bg-zinc-950 transition-colors duration-300">
       <div className="w-full max-w-md md:max-w-lg">
         
-        {/* লটি অ্যানিমেশন কন্টেইনার */}
+        {/* Lotti */}
         <div className="mx-auto h-56 w-full sm:h-64 md:h-72">
           <Lottie 
             animationData={warningAnim} 
@@ -22,7 +22,7 @@ export default function Forbidden() {
           />
         </div>
 
-        {/* টেক্সট কন্টেন্ট */}
+        {/* text */}
         <div className="mt-4 space-y-3">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600 dark:bg-red-500/20 dark:text-red-400">
             403 Access Denied
@@ -35,13 +35,13 @@ export default function Forbidden() {
           </p>
         </div>
 
-        {/* ব্যাক টু হোম বাটন */}
+        {/* back to home */}
         <div className="mt-8">
           <Link
             href="/"
             className="inline-flex h-11 items-center justify-center rounded-xl bg-green-600 px-6 font-semibold text-white shadow-md shadow-green-600/10 transition-all duration-200 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/50"
           >
-            Back to Dashboard
+            Back to Home
           </Link>
         </div>
 

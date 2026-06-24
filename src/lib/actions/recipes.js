@@ -1,74 +1,57 @@
-"use server"
+"use server";
 
 import { stripe } from "@/lib/stripe";
 
 import { headers } from "next/headers";
-
-const baseurl = process.env.NEXT_PUBLIC_BASE_URL
+import { authHeader, serverMutation } from "../core/server";
 
 export const addRecipe = async (newRecipeData) => {
   try {
-    const res = await fetch(`${baseurl}/api/recipes`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newRecipeData),
-    });
-    
-  
-    if (!res.ok) {
-      return { success: false, message: "Server error occurred" };
-    }
-    
-    return res.json();
+    // serverMutation internally JSON parse kore response return korbe
+    return await serverMutation("/api/recipes", newRecipeData);
   } catch (error) {
     return { success: false, message: error.message };
   }
 };
 
-
-
 export const toggleLike = async (recipeId, userId) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${recipeId}/like`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId }),
-  });
-  return res.json();
+  try {
+    return await serverMutation(`/api/recipes/${recipeId}/like`, { userId });
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
 };
 
 export const toggleFavorite = async (recipeId, userId) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${recipeId}/favorite`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId }),
-  });
-  return res.json();
+  try {
+    return await serverMutation(`/api/recipes/${recipeId}/favorite`, {
+      userId,
+    });
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
 };
 
 export const reportRecipe = async (recipeId, userId, reason, details) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${recipeId}/report`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, reason, details }),
-  });
-  return res.json();
-};
-
-const handleResponse = async (res) => {
-  if (!res.ok) {
-    const errorText = await res.text();
-    return { success: false, error: errorText || "Server error" };
+  try {
+    return await serverMutation(`/api/recipes/${recipeId}/report`, {
+      userId,
+      reason,
+      details,
+    });
+  } catch (error) {
+    return { success: false, message: error.message };
   }
-  return res.json();
 };
-
-
-
 
 // lib/api/recipes.js
-export const purchaseRecipe = async (recipeId, recipeName, price, userId, userEmail) => {
+export const purchaseRecipe = async (
+  recipeId,
+  recipeName,
+  price,
+  userId,
+  userEmail,
+) => {
   try {
     const headersList = await headers();
     const origin = headersList.get("origin") || process.env.NEXT_PUBLIC_APP_URL;
@@ -79,14 +62,16 @@ export const purchaseRecipe = async (recipeId, recipeName, price, userId, userEm
 
     const session = await stripe.checkout.sessions.create({
       customer_email: userEmail,
-      line_items: [{
-        price_data: {
-          currency: "usd",
-          product_data: { name: recipeName || "Recipe Purchase" },
-          unit_amount: Math.round(Number(price || 4.99) * 100),
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: { name: recipeName || "Recipe Purchase" },
+            unit_amount: Math.round(Number(price || 4.99) * 100),
+          },
+          quantity: 1,
         },
-        quantity: 1,
-      }],
+      ],
       mode: "payment",
       metadata: {
         userId: String(userId),
@@ -110,7 +95,8 @@ export const deleteRecipe = async (id) => {
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/delete/${id}`, // delate কে delete করা হয়েছে
       {
         method: "DELETE",
-      }
+       
+      },
     );
     return await res.json();
   } catch (error) {
@@ -127,12 +113,11 @@ export const updateRecipe = async (id, recipeData) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        ...(await authHeader()),
       },
       body: JSON.stringify(recipeData),
-    }
+    },
   );
 
   return await res.json();
 };
-
-

@@ -113,7 +113,7 @@ export default async function SuccessPage({ searchParams }) {
               Back to Home
             </Link>
             <Link
-              href="/dashboard/recipes"
+              href="/dashboard"
               className="inline-flex w-full sm:w-1/2 justify-center items-center gap-1.5 px-5 py-3 text-sm font-semibold text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-xl shadow-md transition-all duration-200 transform active:scale-[0.98]"
             >
               Dashboard <ArrowRight size={16} />

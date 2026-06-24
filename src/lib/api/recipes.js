@@ -1,9 +1,8 @@
-import { serverFetch } from "../core/server";
+import { authHeader, protectedFetch, serverFetch } from "../core/server";
 
 export const getRecipeByUser = async (userId) => {
   return serverFetch(`/api/recipes?userId=${userId}`);
 };
-
 
 export const getRecipes = async ({ category, cuisine } = {}) => {
   const params = new URLSearchParams();
@@ -19,30 +18,36 @@ export const getRecipeById = async (id) => {
 };
 
 export const getInteractions = async (recipeId, userId) => {
-  return serverFetch(`/api/browse-recipes/${recipeId}/interactions?userId=${userId}`);
+  return protectedFetch(
+    `/api/browse-recipes/${recipeId}/interactions?userId=${userId}`,
+  );
 };
 
-
 export const getUserFavorites = async (userId) => {
-  const data = await serverFetch(`/api/users/${userId}/favorites`);
+  const data = await protectedFetch(`/api/users/${userId}/favorites`);
   return data || [];
 };
 
 export const getUserPurchases = async (userId) => {
-  const data = await serverFetch(`/api/users/${userId}/purchases`);
+  const data = await protectedFetch(`/api/users/${userId}/purchases`);
   return data || [];
 };
 
 // admin for manage
 
 export const patchRecipeFeature = async (recipeId, isFeaturedNow) => {
- 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BASE_URL;
+  if (!req.user || req.user._id.toString() !== userId) {
+    return res.status(403).send({
+      Message: "Forbidden: You cannot view another user's favorites",
+    });
+  }
 
   const res = await fetch(`${BACKEND_URL}/api/recipes/${recipeId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      ...(await authHeader()),
     },
     body: JSON.stringify({ isFeatured: isFeaturedNow }),
   });
