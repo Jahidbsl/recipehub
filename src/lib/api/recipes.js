@@ -33,6 +33,19 @@ export const getUserPurchases = async (userId) => {
   return data || [];
 };
 
+
+
+// Admin Panel Transactions Fetch Action
+export const getAdminTransactions = async () => {
+  try {
+    // Apnar protectedFetch automatically baseurl, endpoint config and verification authHeader bind kore nibe
+    const data = await protectedFetch("/api/admin/transactions");
+    return data; 
+  } catch (error) {
+    console.error("Action Fetch Error:", error);
+    return { success: false, message: "Failed to execute server action load." };
+  }
+};
 // admin for manage
 
 export const patchRecipeFeature = async (recipeId, isFeaturedNow) => {
