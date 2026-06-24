@@ -44,48 +44,25 @@ export const reportRecipe = async (recipeId, userId, reason, details) => {
   }
 };
 
-// lib/api/recipes.js
-export const purchaseRecipe = async (
-  recipeId,
-  recipeName,
-  price,
-  userId,
-  userEmail,
-) => {
-  try {
-    const headersList = await headers();
-    const origin = headersList.get("origin") || process.env.NEXT_PUBLIC_APP_URL;
+// lib/api/recipes.js admin
+export const patchRecipeFeature = async (recipeId, isFeaturedNow) => {
+  const token = localStorage.getItem("token");
 
-    if (!userId) {
-      return { success: false, error: "Unauthorized! Please login first." };
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      customer_email: userEmail,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: { name: recipeName || "Recipe Purchase" },
-            unit_amount: Math.round(Number(price || 4.99) * 100),
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      metadata: {
-        userId: String(userId),
-        recipeId: String(recipeId),
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${recipeId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      success_url: `${origin}/browse-recipes/${recipeId}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/browse-recipes/${recipeId}`,
-    });
+      body: JSON.stringify({
+        isFeatured: isFeaturedNow,
+      }),
+    }
+  );
 
-    return { success: true, url: session.url };
-  } catch (err) {
-    console.error("Stripe Error:", err);
-    return { success: false, error: err.message };
-  }
+  return res.json();
 };
 
 // ── FIXED DELETE FUNCTION ──
