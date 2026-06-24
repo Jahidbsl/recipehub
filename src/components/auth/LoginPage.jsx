@@ -23,7 +23,8 @@ function LoginContent() {
   
   const authError = searchParams.get("error");
   const hasShownError = useRef(false);
-const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+
   useEffect(() => {
     if (authError && !hasShownError.current) {
       const cleanMessage = decodeURIComponent(authError).replace(/\+/g, " ");
@@ -34,6 +35,21 @@ const callbackUrl = searchParams.get("callbackUrl") || "/";
       hasShownError.current = true;
     }
   }, [authError]);
+
+  useEffect(() => {
+    const checkBlockStatus = async () => {
+      const { data: session } = await authClient.useSession();
+      if (session?.user?.isBlocked === true || session?.user?.isBlocked === "true") {
+        toast.error("Your account has been blocked by the admin! 🚫", {
+          position: "top-center",
+          toastId: "blocked-session-toast"
+        });
+        await authClient.signOut();
+        router.replace("/auth/signin");
+      }
+    };
+    checkBlockStatus();
+  }, [router]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -49,6 +65,12 @@ const callbackUrl = searchParams.get("callbackUrl") || "/";
       if (error) {
         toast.error(error.message || "Invalid credentials! ❌");
       } else {
+        if (data?.user?.isBlocked === true || data?.user?.isBlocked === "true") {
+          toast.error("Your account has been blocked by the admin! 🚫", { position: "top-center" });
+          await authClient.signOut();
+          setLoading(false);
+          return;
+        }
         toast.success("Successfully logged in! 🎉");
         router.push(callbackUrl);
       }
@@ -64,7 +86,7 @@ const callbackUrl = searchParams.get("callbackUrl") || "/";
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: searchParams.get("callbackUrl") || "/", 
+        callbackURL: callbackUrl, 
         errorCallbackURL: "/auth/signin" 
       });
       toast.success("Redirecting to Google... 🚀");
