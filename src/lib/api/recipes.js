@@ -72,3 +72,23 @@ export const patchRecipeFeature = async (recipeId, isFeaturedNow) => {
 
   return res.json();
 };
+// admin all recipy delete
+export const deleteRecipe = async (recipeId) => {
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+  const headers = {};
+  if (typeof authHeader === "function") {
+    Object.assign(headers, await authHeader());
+  }
+
+  const res = await fetch(`${BACKEND_URL}/api/recipes/${recipeId}`, {
+    method: "DELETE", // ডিলিট করার জন্য DELETE মেথড
+    headers: headers,
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to delete recipe on backend");
+  }
+
+  return res.json();
+};

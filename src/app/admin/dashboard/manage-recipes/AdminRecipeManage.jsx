@@ -2,12 +2,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Star, ChefHat, Eye, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChefHat, Eye, Search, ChevronLeft, ChevronRight ,Trash2} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-toastify";
 
-import { getRecipes, patchRecipeFeature } from "@/lib/api/recipes";
+import { getRecipes, patchRecipeFeature,deleteRecipe } from "@/lib/api/recipes";
 
 export default function AdminRecipeManage() {
   const [recipes, setRecipes] = useState([]);
@@ -34,6 +34,35 @@ export default function AdminRecipeManage() {
     fetchAllRecipes();
   }, []);
 
+  const handleDeleteRecipe = async (recipeId) => {
+    const stringId = typeof recipeId === "object" ? recipeId?.$oid : recipeId;
+    if (!stringId) {
+      toast.error("Invalid Recipe ID");
+      return;
+    }
+
+    // অ্যাডমিনের কাছ থেকে ডিলিট করার আগে কনফার্মেশন নেওয়া
+    const confirmDelete = window.confirm("Are you sure you want to delete this recipe?");
+    if (!confirmDelete) return;
+
+    try {
+      // ১. ব্যাকএন্ড থেকে ডিলিট করা
+      await deleteRecipe(stringId);
+
+      // ২. UI স্টেট থেকে ডিলিট হওয়া রেসিপিটি বাদ দেওয়া
+      setRecipes((prevRecipes) =>
+        prevRecipes.filter((r) => {
+          const currentId = r._id?.$oid || r._id || r.id;
+          return currentId !== stringId;
+        })
+      );
+
+      toast.success("Recipe deleted successfully!");
+    } catch (error) {
+      console.error("DELETE Request Failed:", error);
+      toast.error("Failed to delete recipe from server.");
+    }
+  };
 const handleToggleFeature = async (recipe, recipeId) => {
     // MongoDB $oid অথবা নরমাল আইডি হ্যান্ডেল করা
     const stringId = typeof recipeId === "object" ? recipeId?.$oid : recipeId;
@@ -181,6 +210,7 @@ const handleToggleFeature = async (recipe, recipeId) => {
                         </span>
                       </td>
                       <td className="p-4 text-right">
+                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           {/* ফিচার টগল বাটন */}
                           <button
@@ -197,6 +227,7 @@ const handleToggleFeature = async (recipe, recipeId) => {
                             />
                           </button>
 
+                          {/* ভিউ বাটন */}
                           <Link
                             href={`/browse-recipes/${recipe._id || recipe.id}`}
                             target="_blank"
@@ -204,7 +235,17 @@ const handleToggleFeature = async (recipe, recipeId) => {
                           >
                             <Eye size={15} />
                           </Link>
+
+                          {/* 🗑️ নতুন ডিলিট বাটন */}
+                          <button
+                            onClick={() => handleDeleteRecipe(recipeId)}
+                            className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                            title="Delete Recipe"
+                          >
+                            <Trash2 size={15} />
+                          </button>
                         </div>
+                      </td>
                       </td>
                     </tr>
                   );
