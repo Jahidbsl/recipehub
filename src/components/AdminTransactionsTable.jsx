@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Stylesheet for proper rendering
 
 export default function AdminTransactionsTable() {
   const [transactions, setTransactions] = useState([]);
@@ -8,14 +9,13 @@ export default function AdminTransactionsTable() {
   
   // 🔢 Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Proti page e koiti transaction dekhabe
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ""}/api/admin/transactions`, {
           headers: {
-            // Jodi apnar client browser cookie local storage dynamic mechanism use kore pass token:
             Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         });
@@ -37,7 +37,7 @@ export default function AdminTransactionsTable() {
     fetchTransactions();
   }, []);
 
-  // 🧮 Pagination Mathematical Computations
+  // 🧮 Pagination Calculations
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = transactions.slice(indexOfFirstItem, indexOfLastItem);
@@ -60,6 +60,9 @@ export default function AdminTransactionsTable() {
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+      {/* 🔔 ToastContainer layout element injection */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Financial Transactions 💳</h2>
@@ -89,12 +92,9 @@ export default function AdminTransactionsTable() {
             ) : (
               currentItems.map((tx) => (
                 <tr key={tx.transactionId} className="hover:bg-slate-50/70 transition">
-                  {/* ID */}
                   <td className="p-4 font-mono text-xs text-blue-600 font-semibold select-all">
                     {tx.transactionId}
                   </td>
-                  
-                  {/* User Profile Info */}
                   <td className="p-4 font-medium text-gray-900">
                     <div className="flex flex-col">
                       <span>{tx.user}</span>
@@ -103,20 +103,14 @@ export default function AdminTransactionsTable() {
                       </span>
                     </div>
                   </td>
-                  
-                  {/* Cash Flow Value */}
                   <td className="p-4 font-bold text-gray-900 text-base">
                     ${tx.amount.toFixed(2)}
                   </td>
-                  
-                  {/* Timestamp Logging */}
                   <td className="p-4 text-gray-500 whitespace-nowrap">
                     {tx.date ? new Date(tx.date).toLocaleDateString("en-US", {
                       year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'
                     }) : "N/A"}
                   </td>
-                  
-                  {/* Status Badges */}
                   <td className="p-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                       tx.status?.toLowerCase() === "success" || tx.status?.toLowerCase() === "active"
@@ -136,7 +130,7 @@ export default function AdminTransactionsTable() {
         </table>
       </div>
 
-      {/* 🎛️ Dynamic Pagination Controls Wrapper */}
+      {/* 🎛️ Pagination Controls */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-4 sm:px-2 mt-4">
           <div className="flex flex-1 justify-between sm:hidden">
@@ -172,7 +166,6 @@ export default function AdminTransactionsTable() {
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-40"
                 >
-                  <span className="sr-only">Previous</span>
                   ⬅️
                 </button>
                 
@@ -195,7 +188,6 @@ export default function AdminTransactionsTable() {
                   disabled={currentPage === totalPages}
                   className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-40"
                 >
-                  <span className="sr-only">Next</span>
                   ➡️
                 </button>
               </nav>
