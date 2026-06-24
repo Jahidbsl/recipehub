@@ -1,9 +1,10 @@
 "use client";
+import { getAdminTransactions } from "@/lib/api/recipes";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // Action path-ti thikmoto import kore niben apnar folder framework setup tracking layout onujayi
-import { getAdminTransactions } from "@/lib/actions/recipes";
+
 
 export default function AdminTransactionsTable() {
   const [transactions, setTransactions] = useState([]);
