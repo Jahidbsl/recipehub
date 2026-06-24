@@ -20,6 +20,7 @@ import {
   ExternalLink,
   Shield,
   User,
+  CreditCard,
 } from "lucide-react";
 
 const USER_NAV = [
@@ -83,7 +84,7 @@ const ADMIN_NAV = [
         
       },
       { label: "Reports", href: "/admin/dashboard/manage-reports", icon: BarChart3 },
-       { label: "Transactions", href: "/admin/dashboard/transactions", icon: BarChart3 },
+       { label: "Transactions", href: "/admin/dashboard/transactions", icon: CreditCard },
     ],
   },
 ];
