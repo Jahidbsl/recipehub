@@ -34,18 +34,27 @@ export default function AdminRecipeManage() {
     fetchAllRecipes();
   }, []);
 
-  const handleToggleFeature = async (recipe, recipeId) => {
+const handleToggleFeature = async (recipe, recipeId) => {
+    // MongoDB $oid অথবা নরমাল আইডি হ্যান্ডেল করা
     const stringId = typeof recipeId === "object" ? recipeId?.$oid : recipeId;
+    if (!stringId) {
+      toast.error("Invalid Recipe ID");
+      return;
+    }
+
     const currentStatus = recipe.isFeatured || false;
     const newStatus = !currentStatus;
 
     try {
+      // ১. সার্ভারে রিকোয়েস্ট পাঠানো
       await patchRecipeFeature(stringId, newStatus);
 
+      // ২. UI স্টেট আপডেট করা
       setRecipes((prevRecipes) =>
         prevRecipes.map((r) => {
-          const id = r._id?.$oid || r._id || r.id;
-          return id === recipeId ? { ...r, isFeatured: newStatus } : r;
+          const currentId = r._id?.$oid || r._id || r.id;
+          // এখানে stringId এর সাথে তুলনা করতে হবে
+          return currentId === stringId ? { ...r, isFeatured: newStatus } : r;
         })
       );
 

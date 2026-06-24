@@ -50,18 +50,19 @@ export const getAdminTransactions = async () => {
 
 export const patchRecipeFeature = async (recipeId, isFeaturedNow) => {
   const BACKEND_URL = process.env.NEXT_PUBLIC_BASE_URL;
-  if (!req.user || req.user._id.toString() !== userId) {
-    return res.status(403).send({
-      Message: "Forbidden: You cannot view another user's favorites",
-    });
+
+  // নোটিফিকেশন বা সিকিউরিটি টোকেন যুক্ত করতে authHeader ব্যবহার করুন
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  
+  if (typeof authHeader === "function") {
+    Object.assign(headers, await authHeader());
   }
 
   const res = await fetch(`${BACKEND_URL}/api/recipes/${recipeId}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await authHeader()),
-    },
+    headers: headers,
     body: JSON.stringify({ isFeatured: isFeaturedNow }),
   });
 
