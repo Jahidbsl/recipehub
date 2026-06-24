@@ -37,32 +37,33 @@ export const auth = betterAuth({
     },
   },
 
-  // 🔐 সার্ভার-সাইড হুক (নিখুঁত ও ডাইনামিক চেক)
+  // 🔐 Better Auth গ্লোবাল লাইফসাইকেল হুকস
   hooks: {
-    database: {
-      user: {
-        signIn: {
-          before: async (user) => {
-            // 💡 Better Auth অনেক সময় ক্যাশ ডেটা ব্যবহার করে।
-            // তাই আমরা সরাসরি মঙ্গোডিবি থেকে ইউজারের একদম লেটেস্ট ডেটা তুলে এনে চেক করব।
-            // আপনার কালেকশনের নাম 'user' হলে 'user' দিবেন, 'users' হলে 'users' দিবেন।
-            const freshUser = await db.collection("user").findOne({
-              _id:
-                typeof user.id === "string" ? new ObjectId(user.id) : user._id,
-            });
+    beforeSignIn: async (ctx) => {
+      const { user } = ctx;
+      
+      if (!user || !user.id) return;
 
-            // 🛑 মঙ্গোডিবি থেকে পাওয়া তাজা ডেটায় যদি 'isBlocked' ট্রু (true) থাকে
-            if (
-              freshUser &&
-              (freshUser.isBlocked === true || freshUser.isBlocked === "true")
-            ) {
-              throw new Error("Your account has been blocked by the admin! 🚫");
-            }
+      try {
+        // 💡 Better Auth-এর ক্যাশ এড়াতে সরাসরি MongoDB থেকে লেটেস্ট ডেটা চেক
+        let userQuery = { _id: user.id };
+        
+        // আইডি যদি ObjectId ফরম্যাটে থাকে
+        if (ObjectId.isValid(user.id)) {
+          userQuery = { _id: new ObjectId(user.id) };
+        }
 
-            return { user };
-          },
-        },
-      },
+        const freshUser = await db.collection("user").findOne(userQuery);
+
+        // 🛑 ইউজার যদি ব্লকড থাকে, তবে লগইন রিজেক্ট করে এরর থ্রো করবে
+        if (freshUser && (freshUser.isBlocked === true || freshUser.isBlocked === "true")) {
+          throw new Error("Your account has been blocked by the admin! 🚫");
+        }
+      } catch (error) {
+        console.error("Auth Block Hook Error:", error);
+        // Better Auth-এ কাস্টম মেসেজ পাস করার জন্য অবজেক্ট রিটার্ন করা যায় অথবা ডিরেক্ট থ্রো
+        throw error;
+      }
     },
   },
 });
