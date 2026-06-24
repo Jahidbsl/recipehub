@@ -57,7 +57,7 @@ export const auth = betterAuth({
 
         // 🛑 ইউজার যদি ব্লকড থাকে, তবে লগইন রিজেক্ট করে এরর থ্রো করবে
         if (freshUser && (freshUser.isBlocked === true || freshUser.isBlocked === "true")) {
-          throw new Error("Your account has been blocked by the admin! 🚫");
+          throw new Error("Your account has been blocked by the admin! cool 🚫");
         }
       } catch (error) {
         console.error("Auth Block Hook Error:", error);
