@@ -75,7 +75,7 @@ export default function HeroBanner() {
             variants={itemVariants}
             className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4"
           >
-            <Link href="/recipes" className="w-full sm:w-auto">
+            <Link href="/browse-recipes" className="w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.03, boxShadow: "0px 10px 25px rgba(16, 185, 129, 0.25)" }}
                 whileTap={{ scale: 0.98 }}
@@ -86,7 +86,7 @@ export default function HeroBanner() {
               </motion.button>
             </Link>
 
-            <Link href="/dashboard/add" className="w-full sm:w-auto">
+            <Link href="/dashboard/recipes/add" className="w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
