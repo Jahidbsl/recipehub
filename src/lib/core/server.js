@@ -12,9 +12,12 @@ export const authHeader = async () => {
   return token ? header : {};
 };
 
+
 export const serverFetch = async (path) => {
   try {
-    const res = await fetch(`${baseurl}${path}`);
+    const res = await fetch(`${baseurl}${path}`, {
+      cache: "no-store", 
+    });
 
     if (!res.ok) {
       console.error(`Fetch failed with status: ${res.status}`);
@@ -28,10 +31,12 @@ export const serverFetch = async (path) => {
   }
 };
 
+
 export const protectedFetch = async (path) => {
   try {
     const res = await fetch(`${baseurl}${path}`, {
       headers: await authHeader(),
+      cache: "no-store", 
     });
 
     if (!res.ok) {
@@ -54,6 +59,7 @@ export const serverMutation = async (path, data) => {
       ...(await authHeader()),
     },
     body: JSON.stringify(data),
+   
   });
 
   console.log("URL:", `${baseurl}${path}`);
