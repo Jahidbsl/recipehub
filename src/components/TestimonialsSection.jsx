@@ -9,21 +9,21 @@ const testimonials = [
   {
     name: "Sarah Jenkins",
     role: "Home Chef Enthusiast",
-    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+    image: "https://ibb.co.com/N6vXhv3y",
     review: "This platform completely changed how I organize my weekly meals. The smart dynamic portions scaling works flawlessly every single time!",
     rating: 5
   },
   {
     name: "Marcus Thorne",
     role: "Restaurant Consultant",
-    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus",
+    image: "https://ibb.co.com/5hBQdG0M",
     review: "As a professional, I appreciate the clean UI and deep recipe analytics. Managing premium culinary content has never been this intuitive.",
     rating: 5
   },
   {
     name: "Elena Rostova",
     role: "Food Blogger & Stylist",
-    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elena",
+    image: "https://ibb.co.com/xqNPYvkw",
     review: "I love the community features and verified badges. It brings massive authenticity to recipes and allows food lovers to connect genuinely.",
     rating: 5
   }
