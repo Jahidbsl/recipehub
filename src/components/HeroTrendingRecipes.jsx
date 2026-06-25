@@ -87,7 +87,7 @@ export default function HeroTrendingRecipes() {
                       {recipe.image || recipe.thumbnail ? (
                         <Image
                           src={recipe.image || recipe.thumbnail}
-                          alt={recipe.title || "Recipe Thumbnail Image"}
+                          alt={recipe.name || "Recipe Thumbnail Image"} // 🎯 এখানে recipe.name দেওয়া হয়েছে
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           className="object-cover transform hover:scale-105 transition-transform duration-500"
@@ -124,8 +124,9 @@ export default function HeroTrendingRecipes() {
                         )}
                       </div>
 
+                    
                       <h3 className="font-bold text-lg text-neutral-900 dark:text-white line-clamp-1">
-                        {recipe.title}
+                        {recipe.name || recipe.title}
                       </h3>
 
                       {recipe.description && (
