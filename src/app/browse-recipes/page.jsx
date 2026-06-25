@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getRecipes } from "@/lib/api/recipes";
 import { BrowseRecipesClient } from "@/components/recipes/browse/BrowseRecipesClient";
 
