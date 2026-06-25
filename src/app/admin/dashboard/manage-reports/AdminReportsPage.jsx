@@ -9,6 +9,7 @@ export default function AdminReportsPage() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ১. রিপোর্টস লোড করা
   useEffect(() => {
     getAllReports()
       .then((data) => {
@@ -29,32 +30,49 @@ export default function AdminReportsPage() {
       });
   }, []);
 
+  // ২. রিপোর্ট বাতিল (Dismiss) করা
   const handleDismiss = async (reportId) => {
     try {
       const data = await dismissReport(reportId);
-      if (data.success) {
+      if (data.success || data.message?.includes("success") || data) { 
+        // অনেক সময় API সরাসরি success ট্রু পাঠায় না, তাই ব্যাকএন্ড রেসপন্স চেক করুন
         toast.success("Report dismissed! ✅");
         setReports((prev) => prev.filter((r) => r._id !== reportId));
       } else {
         toast.error(data.message || "Failed to dismiss report");
       }
     } catch (err) {
+      console.error(err);
       toast.error("Failed to dismiss report");
     }
   };
 
+  // ৩. রেসিপি চিরতরে ডিলিট করা
   const handleDeleteRecipe = async (recipeId) => {
+    if (!recipeId) {
+      toast.error("Recipe ID not found!");
+      return;
+    }
+    
     if (!confirm("Are you sure you want to delete this recipe permanently?")) return;
 
     try {
       const data = await deleteRecipeAndReports(recipeId);
-      if (data.success) {
+      if (data.success || data) {
         toast.success("Recipe deleted and reports cleared! 🗑️");
-        setReports((prev) => prev.filter((r) => r.recipeId !== recipeId));
+        
+        // UI থেকে ওই রেসিপির সব রিপোর্ট একসাথে রিমুভ করার নিরাপদ উপায়:
+        setReports((prev) => 
+          prev.filter((r) => {
+            const currentRecipeId = typeof r.recipeId === 'object' ? r.recipeId?._id : r.recipeId;
+            return currentRecipeId !== recipeId;
+          })
+        );
       } else {
         toast.error(data.message || "Failed to delete recipe");
       }
     } catch (err) {
+      console.error(err);
       toast.error("Failed to delete recipe");
     }
   };
@@ -81,6 +99,9 @@ export default function AdminReportsPage() {
         <div className="space-y-4">
           {reports.map((report) => {
             const recipeName = report.recipeDetails?.name || "Unknown Recipe";
+            
+            // রিমোট বা নেস্টেড আইডি সুরক্ষার জন্য:
+            const actualRecipeId = typeof report.recipeId === 'object' ? report.recipeId?._id : report.recipeId;
             
             return (
               <div 
@@ -109,7 +130,7 @@ export default function AdminReportsPage() {
                     Dismiss Report
                   </button>
                   <button
-                    onClick={() => handleDeleteRecipe(report.recipeId)}
+                    onClick={() => handleDeleteRecipe(actualRecipeId)}
                     className="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-semibold hover:bg-rose-700 transition-colors"
                   >
                     Delete Recipe
