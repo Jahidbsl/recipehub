@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, Bookmark, Flag, ShoppingCart, Clock, Tag, Globe, ChefHat, CheckCircle, X } from "lucide-react";
+import { Heart, Bookmark, Flag, ShoppingCart, Clock, Tag, Globe, ChefHat, CheckCircle, X, ArrowLeft } from "lucide-react";
 import Image from "next/image"; 
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
@@ -56,9 +56,6 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
     }
 
     if (user?.isBlocked === true || user?.isBlocked === "true") {
-      // toast.error("Your account has been blocked by the admin!cull 🚫", {
-      //   position: "top-center"
-      // });
       router.push("/auth/signin?error=Your+account+has+been+blocked+by+the+admin!+🚫");
       return true;
     }
@@ -103,6 +100,16 @@ export function RecipeDetailsClient({ recipe, user, initialInteractions, showSuc
   return (
     <>
       <div className="space-y-6">
+        {/* Modern Back Button */}
+        <div className="flex items-center">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-zinc-600 dark:text-zinc-400 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-all hover:-translate-x-0.5 active:translate-x-0"
+          >
+            <ArrowLeft size={16} /> Back to Recipes
+          </button>
+        </div>
+
         {image ? (
           <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden shadow-sm">
             <Image 
