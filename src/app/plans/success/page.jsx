@@ -55,10 +55,8 @@ export default async function SuccessPage({ searchParams }) {
     return (
       <section className="min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900 transition-colors">
         <div className="max-w-md w-full text-center space-y-6 p-8 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-xl bg-white/80 dark:bg-zinc-900/60 backdrop-blur-md relative overflow-hidden">
-          {/* টপ গ্লো ইফেক্ট */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-emerald-500/10 dark:bg-emerald-500/5 blur-3xl rounded-full -z-10" />
 
-          {/* সাকসেস আইকন */}
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-500 border border-emerald-100 dark:border-emerald-900/30 shadow-inner">
             <CheckCircle2
               size={32}
@@ -66,7 +64,6 @@ export default async function SuccessPage({ searchParams }) {
             />
           </div>
 
-          {/* হেডিং সেকশন */}
           <div className="space-y-2">
             <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-3xl">
               Payment Successful! 🎉
@@ -78,7 +75,6 @@ export default async function SuccessPage({ searchParams }) {
 
           <hr className="border-zinc-100 dark:border-zinc-800" />
 
-          {/* কন্টেন্ট মেসেজ এবং ইনফো বক্স */}
           <div className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300 space-y-4">
             <div className="bg-zinc-50/50 dark:bg-zinc-800/30 border border-zinc-100 dark:border-zinc-800/50 rounded-2xl p-4 text-left flex items-start gap-3 shadow-sm">
               <Mail size={18} className="text-zinc-400 mt-0.5 flex-shrink-0" />
@@ -103,7 +99,6 @@ export default async function SuccessPage({ searchParams }) {
             </p>
           </div>
 
-          {/* অ্যাকশন বাটন গ্রুপ */}
           <div className="pt-2 flex flex-col sm:flex-row gap-3">
             <Link
               href="/"

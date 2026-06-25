@@ -242,7 +242,6 @@ export default function AddRecipePage({ user }) {
     try {
       setIsSubmitting(true);
 
-      // ১. ImgBB তে ইমেজ আপলোড
       setUploadStep("uploading-image");
       const imageUrl = await uploadToImgbb(imageFile);
 

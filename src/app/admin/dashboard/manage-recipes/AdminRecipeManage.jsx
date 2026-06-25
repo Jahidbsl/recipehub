@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useState, useTransition } from "react";
-import { Star, ChefHat, Eye, Search, ChevronLeft, ChevronRight, Trash2, Loader2, Utensils } from "lucide-react";
+import { Star, ChefHat, Eye, Search, ChevronLeft, ChevronRight, Trash2, Loader2, Utensils, AlertTriangle, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-toastify";
 
-import { getRecipes, patchRecipeFeature, deleteRecipe } from "@/lib/api/recipes";
+import { getRecipes, patchRecipeFeature } from "@/lib/api/recipes";
 import { deleteRecipeAndReports } from "@/lib/actions/reports";
 
 export default function AdminRecipeManage() {
@@ -14,11 +14,13 @@ export default function AdminRecipeManage() {
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
-  // 📝 সার্চ, ফিল্টার এবং পেজিনেশন স্টেট
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // দেখতে সুন্দর লাগার জন্য প্রতি পেজে ৬টি করে রাখা হয়েছে
+  const itemsPerPage = 6; 
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
 
   useEffect(() => {
     const fetchAllRecipes = async () => {
@@ -35,7 +37,6 @@ export default function AdminRecipeManage() {
     fetchAllRecipes();
   }, []);
 
-  // ⚡ ফিচার টগল লজিক (Instant UI Update)
   const handleToggleFeature = async (recipe, recipeId) => {
     const stringId = typeof recipeId === "object" ? recipeId?.$oid : recipeId;
     if (!stringId) return toast.error("Invalid Recipe ID");
@@ -43,10 +44,8 @@ export default function AdminRecipeManage() {
     const currentStatus = recipe.isFeatured || false;
     const newStatus = !currentStatus;
 
-    // ১. ব্যাকআপ রাখা (যদি এপিআই ফেইল করে)
     const previousRecipes = [...recipes];
 
-    // ২. ইনস্ট্যান্ট UI আপডেট (Optimistic Update)
     setRecipes((prev) =>
       prev.map((r) => {
         const id = r._id?.$oid || r._id || r.id;
@@ -58,58 +57,55 @@ export default function AdminRecipeManage() {
     else toast.info("Removed from Homepage Features.");
 
     try {
-      // ৩. ব্যাকএন্ডে পাঠানো
       await patchRecipeFeature(stringId, newStatus);
     } catch (error) {
-      // ফেইল করলে আগের অবস্থায় ফেরত নেওয়া
       setRecipes(previousRecipes);
       console.error("PATCH Request Failed:", error);
       toast.error("Failed to update status on server.");
     }
   };
 
- // 🗑️ ডিলিট লজিক (নতুন রিপোর্ট ডিলিট API সহ)
-  const handleDeleteRecipe = async (recipeId) => {
+  const openDeleteModal = (recipeId) => {
     const stringId = typeof recipeId === "object" ? recipeId?.$oid : recipeId;
     if (!stringId) return toast.error("Invalid Recipe ID");
+    
+    setSelectedRecipeId(stringId);
+    setIsModalOpen(true);
+  };
 
-    const confirmDelete = window.confirm("Are you sure you want to permanently delete this recipe and all its reports?");
-    if (!confirmDelete) return;
+  const confirmDeleteRecipe = async () => {
+    if (!selectedRecipeId) return;
 
-    // ১. ব্যাকআপ রাখা (যদি কোনো কারণে এপিআই ফেইল করে)
     const previousRecipes = [...recipes];
 
-    // ২. ইনস্ট্যান্ট স্ক্রিন থেকে হাওয়া করে দেওয়া (Optimistic Delete)
     setRecipes((prev) =>
       prev.filter((r) => {
         const id = r._id?.$oid || r._id || r.id;
-        return id !== stringId;
+        return id !== selectedRecipeId;
       })
     );
     toast.success("Recipe and associated reports deleted successfully!");
 
     try {
-      // ৩. আপনার নতুন অ্যাডমিন ডিলিট এপিআই কল
-      await deleteRecipeAndReports(stringId);
+      await deleteRecipeAndReports(selectedRecipeId);
     } catch (error) {
-      // ফেইল করলে স্ক্রিনে রেসিপি আবার ফিরিয়ে আনা
       setRecipes(previousRecipes);
       console.error("DELETE Request Failed:", error);
       toast.error("Could not delete from server. Restored recipe.");
+    } finally {
+      setIsModalOpen(false);
+      setSelectedRecipeId(null);
     }
   };
 
-  // 🔍 ১. ইউনিক ক্যাটাগরি ফিল্টার
   const categories = ["All", ...new Set(recipes.map((r) => r.category).filter(Boolean))];
 
-  // 🎛️ ২. সার্চ + ক্যাটাগরি ফিল্টারিং
   const filteredRecipes = recipes.filter((recipe) => {
     const matchesSearch = recipe.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All" || recipe.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // 📄 ৩. পেজিনেশন
   const totalPages = Math.ceil(filteredRecipes.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -123,7 +119,6 @@ export default function AdminRecipeManage() {
     <div className="min-h-screen bg-slate-50/50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 p-4 sm:p-8 font-sans antialiased">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* 👑 প্রফেশনাল হেডার কার্ড */}
         <div className="bg-gradient-to-r from-emerald-600 to-teal-700 dark:from-emerald-900 dark:to-zinc-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-emerald-500/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-3">
@@ -138,9 +133,7 @@ export default function AdminRecipeManage() {
           </div>
         </div>
 
-        {/* 🛠️ রেসপন্সিভ ফিল্টার ও সার্চ বার */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white dark:bg-zinc-900 p-4 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-sm">
-          {/* সার্চ */}
           <div className="relative sm:col-span-2">
             <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
             <input
@@ -152,7 +145,6 @@ export default function AdminRecipeManage() {
             />
           </div>
 
-          {/* ড্রপডাউন */}
           <div className="relative">
             <select
               value={selectedCategory}
@@ -169,10 +161,8 @@ export default function AdminRecipeManage() {
           </div>
         </div>
 
-        {/* 📊 রেসপন্সিভ টেবিল ও মোবাইল ভিউ কার্ড */}
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
           
-          {/* 💻 ডেস্কটপ টেবিল ভিউ (Hidden on Mobile) */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
@@ -224,7 +214,6 @@ export default function AdminRecipeManage() {
                         </td>
                         <td className="p-4 text-right pr-6">
                           <div className="flex items-center justify-end gap-2.5">
-                            {/* ফিচার */}
                             <button
                               onClick={() => handleToggleFeature(recipe, recipeId)}
                               className={`p-2 rounded-xl border transition-all ${
@@ -237,7 +226,6 @@ export default function AdminRecipeManage() {
                               <Star size={16} className={isFeatured ? "fill-current" : ""} />
                             </button>
 
-                            {/* ভিউ */}
                             <Link
                               href={`/browse-recipes/${recipe._id || recipe.id}`}
                               target="_blank"
@@ -246,9 +234,8 @@ export default function AdminRecipeManage() {
                               <Eye size={16} />
                             </Link>
 
-                            {/* ডিলিট */}
                             <button
-                              onClick={() => handleDeleteRecipe(recipeId)}
+                              onClick={() => openDeleteModal(recipeId)}
                               className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"
                               title="Delete Recipe"
                             >
@@ -264,7 +251,6 @@ export default function AdminRecipeManage() {
             </table>
           </div>
 
-          {/* 📱 মোবাইল রেসপন্সিভ কার্ড ভিউ (Visible only on Mobile) */}
           <div className="block md:hidden p-4 space-y-4">
             {loading ? (
               <div className="p-8 text-center text-zinc-400">
@@ -296,7 +282,7 @@ export default function AdminRecipeManage() {
                         </span>
                       </div>
                     </div>
-                    {/* মোবাইল অ্যাকশন বাটনস */}
+                    
                     <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-200/50 dark:border-zinc-800">
                       <button
                         onClick={() => handleToggleFeature(recipe, recipeId)}
@@ -316,7 +302,7 @@ export default function AdminRecipeManage() {
                         <Eye size={14} /> View
                       </Link>
                       <button
-                        onClick={() => handleDeleteRecipe(recipeId)}
+                        onClick={() => openDeleteModal(recipeId)}
                         className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-xl bg-red-500/10 border border-red-500/20 text-red-500"
                       >
                         <Trash2 size={14} /> Delete
@@ -328,7 +314,6 @@ export default function AdminRecipeManage() {
             )}
           </div>
 
-          {/* 🏁 আধুনিক পেজিনেশন ফুটার */}
           {!loading && totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between p-4 gap-4 border-t border-zinc-200/80 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/20">
               <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
@@ -363,6 +348,53 @@ export default function AdminRecipeManage() {
         </div>
 
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsModalOpen(false)}
+          ></div>
+          
+          <div className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 transform transition-all scale-100">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute right-4 top-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 rounded-2xl">
+                <AlertTriangle size={24} />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                  Delete Recipe Permanently?
+                </h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                  Are you sure you want to permanently delete this recipe and all its reports? This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold text-sm rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteRecipe}
+                className="px-5 py-2.5 bg-rose-600 text-white font-semibold text-sm rounded-xl hover:bg-rose-700 transition-colors shadow-lg shadow-rose-600/20"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

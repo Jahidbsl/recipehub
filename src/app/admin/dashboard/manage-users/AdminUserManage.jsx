@@ -10,7 +10,7 @@ export default function AdminUserManage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // রেসপন্সিভ গ্রিডের জন্য ৬ করা হয়েছে
+  const itemsPerPage = 6; 
 
   useEffect(() => {
     const fetchAllUsers = async () => {
@@ -29,7 +29,6 @@ export default function AdminUserManage() {
     fetchAllUsers();
   }, []);
 
-  // ⚡ ইনস্ট্যান্ট ব্লক/আনব্লক হ্যান্ডলার (Optimistic UI Update)
   const handleToggleBlock = async (user, userId) => {
     const stringId = typeof userId === "object" ? userId?.$oid : userId;
     if (!stringId) return toast.error("Invalid User ID");
@@ -37,19 +36,15 @@ export default function AdminUserManage() {
     const currentBlockStatus = user.isBlocked || false;
     const newBlockStatus = !currentBlockStatus;
 
-    // ব্যাকএন্ড ফেইল করলে ব্যাকআপ ফিরিয়ে আনার জন্য
     const previousUsers = [...users];
 
-    // ১. স্ক্রিনে সাথে সাথে স্টেট আপডেট করা
     setUsers((prevUsers) =>
       prevUsers.map((u) => {
         const currentId = u._id?.$oid || u._id || u.id;
-        // এখানে ফিক্স করা হয়েছে: stringId এর সাথে তুলনা
         return currentId === stringId ? { ...u, isBlocked: newBlockStatus } : u;
       })
     );
 
-    // ২. সাথে সাথে সঠিক টোস্ট মেসেজ দেখানো
     if (newBlockStatus) {
       toast.error(`Blocked account: ${user.email}`);
     } else {
@@ -57,17 +52,14 @@ export default function AdminUserManage() {
     }
 
     try {
-      // ৩. ব্যাকএন্ড এপিআই কল
       await patchUserBlockStatus(stringId, newBlockStatus);
     } catch (error) {
-      // ফেইল করলে আগের রোলব্যাক করা
       setUsers(previousUsers);
       console.error("Block request failed:", error);
       toast.error("Server error: Failed to update user status.");
     }
   };
 
-  // 🔍 সার্চ ফিল্টারিং
   const filteredUsers = users.filter((user) => {
     return (
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -75,7 +67,6 @@ export default function AdminUserManage() {
     );
   });
 
-  // 📄 পেজিনেশন ক্যালকুলেশন
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -89,7 +80,6 @@ export default function AdminUserManage() {
     <div className="min-h-screen bg-slate-50/50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 p-4 sm:p-8 font-sans antialiased">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* 👑 আকর্ষণীয় প্রিমিয়াম হেডার কার্ড */}
         <div className="bg-gradient-to-r from-red-600 to-rose-700 dark:from-rose-950 dark:to-zinc-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-rose-500/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-3">
@@ -104,7 +94,6 @@ export default function AdminUserManage() {
           </div>
         </div>
 
-        {/* 🛠️ সার্চ কন্ট্রোল এরিয়া */}
         <div className="flex bg-white dark:bg-zinc-900 p-4 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-sm">
           <div className="relative w-full sm:w-80">
             <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
@@ -118,10 +107,8 @@ export default function AdminUserManage() {
           </div>
         </div>
 
-        {/* 📊 ডেটা টেবিল ও মোবাইল কার্ড কন্টেইনার */}
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
           
-          {/* 💻 ডেস্কটপ টেবিল ভিউ (Hidden on Mobile) */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
@@ -199,7 +186,6 @@ export default function AdminUserManage() {
             </table>
           </div>
 
-          {/* 📱 মোবাইল রেসপন্সিভ কার্ড ভিউ (Visible only on Mobile) */}
           <div className="block md:hidden p-4 space-y-4">
             {loading ? (
               <div className="p-8 text-center text-zinc-400">
@@ -259,7 +245,6 @@ export default function AdminUserManage() {
             )}
           </div>
 
-          {/* 🏁 পেজিনেশন ফুটার */}
           {!loading && totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between p-4 gap-4 border-t border-zinc-200/80 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/20">
               <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">

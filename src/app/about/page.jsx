@@ -14,7 +14,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
-// Framer Motion ভ্যারিয়েন্টস (অ্যানিমেশন রিইউজ করার জন্য)
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
@@ -34,9 +33,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-neutral-50/50 dark:bg-zinc-950/50 text-zinc-900 dark:text-zinc-50 transition-colors duration-300 overflow-hidden">
       
-      {/* ১. হিরো সেকশন (Hero Section) */}
       <div className="relative py-24 border-b border-zinc-200/60 dark:border-zinc-800/60 bg-gradient-to-b from-emerald-500/5 to-transparent">
-        {/* ব্যাকগ্রাউন্ড গ্লো অ্যানিমেশন */}
         <div className="absolute inset-0 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-center pointer-events-none">
           <motion.div 
             animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
@@ -50,7 +47,6 @@ export default function AboutPage() {
           />
         </div>
 
-        {/* হিরো কন্টেন্ট অ্যানিমেশন */}
         <motion.div 
           initial="hidden"
           animate="visible"
@@ -74,7 +70,6 @@ export default function AboutPage() {
         </motion.div>
       </div>
 
-      {/* ২. কোর ভ্যালু বা স্ট্যাটস সেকশন (Scroll-triggered Cards) */}
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <motion.div 
           initial="hidden"
@@ -83,7 +78,7 @@ export default function AboutPage() {
           variants={staggerContainer}
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
         >
-          {/* কার্ড ১ */}
+        
           <motion.div 
             variants={fadeInUp}
             whileHover={{ y: -8, scale: 1.02 }}
@@ -98,7 +93,7 @@ export default function AboutPage() {
             </p>
           </motion.div>
 
-          {/* কার্ড ২ */}
+        
           <motion.div 
             variants={fadeInUp}
             whileHover={{ y: -8, scale: 1.02 }}
@@ -113,7 +108,7 @@ export default function AboutPage() {
             </p>
           </motion.div>
 
-          {/* কার্ড ৩ */}
+          
           <motion.div 
             variants={fadeInUp}
             whileHover={{ y: -8, scale: 1.02 }}
@@ -128,7 +123,7 @@ export default function AboutPage() {
             </p>
           </motion.div>
 
-          {/* কার্ড ৪ */}
+         
           <motion.div 
             variants={fadeInUp}
             whileHover={{ y: -8, scale: 1.02 }}
@@ -145,11 +140,11 @@ export default function AboutPage() {
         </motion.div>
       </div>
 
-      {/* ৩. আওয়ার মিশন অ্যান্ড ভিশন (Left/Right Reveal Animation) */}
+    
       <div className="border-t border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-zinc-900/20 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           
-          {/* বাম দিকের টেক্সট অ্যানিমেশন */}
+       
           <motion.div 
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -174,7 +169,6 @@ export default function AboutPage() {
             </div>
           </motion.div>
 
-          {/* ডান দিকের ইমেজ অ্যানিমেশন */}
           <motion.div 
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -199,7 +193,6 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* ৪. কল টু অ্যাকশন সেকশন (Scale-up Viewport CTA) */}
       <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}

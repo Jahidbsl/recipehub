@@ -4,12 +4,15 @@ import { deleteRecipeAndReports, dismissReport } from "@/lib/actions/reports";
 import { getAllReports } from "@/lib/api/reports";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { Trash2, AlertTriangle, X } from "lucide-react";
 
 export default function AdminReportsPage() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
 
-  // ১. রিপোর্টস লোড করা
   useEffect(() => {
     getAllReports()
       .then((data) => {
@@ -30,12 +33,10 @@ export default function AdminReportsPage() {
       });
   }, []);
 
-  // ২. রিপোর্ট বাতিল (Dismiss) করা
   const handleDismiss = async (reportId) => {
     try {
       const data = await dismissReport(reportId);
       if (data.success || data.message?.includes("success") || data) { 
-        // অনেক সময় API সরাসরি success ট্রু পাঠায় না, তাই ব্যাকএন্ড রেসপন্স চেক করুন
         toast.success("Report dismissed! ✅");
         setReports((prev) => prev.filter((r) => r._id !== reportId));
       } else {
@@ -47,25 +48,27 @@ export default function AdminReportsPage() {
     }
   };
 
-  // ৩. রেসিপি চিরতরে ডিলিট করা
-  const handleDeleteRecipe = async (recipeId) => {
+  const openDeleteModal = (recipeId) => {
     if (!recipeId) {
       toast.error("Recipe ID not found!");
       return;
     }
-    
-    if (!confirm("Are you sure you want to delete this recipe permanently?")) return;
+    setSelectedRecipeId(recipeId);
+    setIsModalOpen(true);
+  };
+
+  const confirmDeleteRecipe = async () => {
+    if (!selectedRecipeId) return;
 
     try {
-      const data = await deleteRecipeAndReports(recipeId);
+      const data = await deleteRecipeAndReports(selectedRecipeId);
       if (data.success || data) {
         toast.success("Recipe deleted and reports cleared! 🗑️");
         
-        // UI থেকে ওই রেসিপির সব রিপোর্ট একসাথে রিমুভ করার নিরাপদ উপায়:
         setReports((prev) => 
           prev.filter((r) => {
             const currentRecipeId = typeof r.recipeId === 'object' ? r.recipeId?._id : r.recipeId;
-            return currentRecipeId !== recipeId;
+            return currentRecipeId !== selectedRecipeId;
           })
         );
       } else {
@@ -74,6 +77,9 @@ export default function AdminReportsPage() {
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete recipe");
+    } finally {
+      setIsModalOpen(false);
+      setSelectedRecipeId(null);
     }
   };
 
@@ -86,7 +92,7 @@ export default function AdminReportsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 relative">
       <h1 className="text-2xl font-bold mb-6 text-zinc-900 dark:text-zinc-50">
         Recipe Reports Dashboard
       </h1>
@@ -99,8 +105,6 @@ export default function AdminReportsPage() {
         <div className="space-y-4">
           {reports.map((report) => {
             const recipeName = report.recipeDetails?.name || "Unknown Recipe";
-            
-            // রিমোট বা নেস্টেড আইডি সুরক্ষার জন্য:
             const actualRecipeId = typeof report.recipeId === 'object' ? report.recipeId?._id : report.recipeId;
             
             return (
@@ -130,15 +134,62 @@ export default function AdminReportsPage() {
                     Dismiss Report
                   </button>
                   <button
-                    onClick={() => handleDeleteRecipe(actualRecipeId)}
-                    className="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-semibold hover:bg-rose-700 transition-colors"
+                    onClick={() => openDeleteModal(actualRecipeId)}
+                    className="flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-semibold hover:bg-rose-700 transition-colors shadow-sm shadow-rose-600/20"
                   >
-                    Delete Recipe
+                    <Trash2 size={16} /> Delete Recipe
                   </button>
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsModalOpen(false)}
+          ></div>
+          
+          <div className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 transform transition-all scale-100">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute right-4 top-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 rounded-2xl">
+                <AlertTriangle size={24} />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                  Delete Recipe Permanently?
+                </h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                  Are you sure you want to delete this recipe? This action cannot be undone and will clear all associated user reports.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold text-sm rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteRecipe}
+                className="px-5 py-2.5 bg-rose-600 text-white font-semibold text-sm rounded-xl hover:bg-rose-700 transition-colors shadow-lg shadow-rose-600/20"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
