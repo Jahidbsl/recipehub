@@ -17,7 +17,7 @@ function formatDate(iso) {
 
 export function BrowseRecipeCard({ recipe }) {
   const { _id, name, category, cuisine, prepTime, difficulty, image, userEmail, userImage, createdAt } = recipe;
-  const initial = userEmail?.?.toUpperCase() ?? "?";
+ const initial = userEmail?.charAt(0)?.toUpperCase() ?? "?";
 
   return (
     <article className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl overflow-hidden flex flex-col hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
