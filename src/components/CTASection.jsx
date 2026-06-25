@@ -48,24 +48,20 @@ export default function CTASection() {
             transition={{ delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
-            <Button
-              asChild
-              className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold text-xs py-5 px-8 rounded-xl flex items-center justify-center gap-2 group shadow-lg shadow-emerald-500/20"
+            <Link
+              href="/dashboard/recipes/add"
+              className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold text-xs py-5 px-8 rounded-xl flex items-center justify-center gap-2 group shadow-lg shadow-emerald-500/20 transition-colors"
             >
-              <Link href="/dashboard/recipes/add">
-                <PlusCircle size={14} />
-                <span>Share Your Recipe</span>
-              </Link>
-            </Button>
+              <PlusCircle size={14} />
+              <span>Share Your Recipe</span>
+            </Link>
 
-            <Button
-              asChild
-              className="w-full sm:w-auto bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 font-bold text-xs py-5 px-8 rounded-xl flex items-center justify-center"
+            <Link
+              href="/auth/signup"
+              className="w-full sm:w-auto bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 font-bold text-xs py-5 px-8 rounded-xl flex items-center justify-center transition-colors"
             >
-              <Link href="/auth/signup">
-                <span>Join as Member</span>
-              </Link>
-            </Button>
+              <span>Join as Member</span>
+            </Link>
           </motion.div>
         </motion.div>
       </div>
