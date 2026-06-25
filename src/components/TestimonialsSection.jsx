@@ -52,7 +52,6 @@ export default function TestimonialsSection() {
     <section className="py-24 bg-neutral-50/30 dark:bg-zinc-950/20 transition-colors duration-300 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         
-        {/* সেকশন হেডার */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full uppercase tracking-wider">
             Wall of Love
@@ -65,7 +64,6 @@ export default function TestimonialsSection() {
           </p>
         </div>
 
-        {/* টেস্টিমোনিয়াল কার্ডস */}
         <motion.div 
           variants={containerVariants}
           initial="hidden"
@@ -80,31 +78,28 @@ export default function TestimonialsSection() {
               whileHover={{ scale: 1.02 }}
               className="relative p-8 rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-zinc-900 shadow-sm flex flex-col justify-between space-y-6"
             >
-              {/* সজ্জাসংক্রান্ত কোট আইকন */}
               <div className="absolute top-6 right-8 text-zinc-100 dark:text-zinc-800 pointer-events-none">
                 <Quote size={40} className="transform rotate-180 fill-current" />
               </div>
 
               <div className="space-y-4 relative z-10">
-                {/* স্টার রেটিং */}
                 <div className="flex items-center gap-1 text-amber-400">
                   {Array.from({ length: user.rating }).map((_, i) => (
                     <Star key={i} size={14} className="fill-current" />
                   ))}
                 </div>
-                {/* রিভিউ টেক্সট */}
                 <p className="text-sm text-zinc-600 dark:text-zinc-300 italic leading-relaxed">
                   "{user.review}"
                 </p>
               </div>
 
-              {/* ইউজার প্রোফাইল */}
               <div className="flex items-center gap-3.5 pt-4 border-t border-zinc-100 dark:border-zinc-800/60">
                 <div className="relative h-11 w-11 rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
                   <Image 
-                    src={user.image} 
+                    src={`${user.image.replace("ibb.co.com", "i.ibb.co.com")}.png`}
                     alt={user.name} 
                     fill 
+                    unoptimized
                     className="object-cover"
                   />
                 </div>
