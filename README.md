@@ -1,24 +1,33 @@
 # 🍳 RecipeHub
 
-Welcome to **RecipeHub** – a modern, full-stack recipe sharing and management platform built with Next.js, Tailwind CSS, and MongoDB. Admin controls, user reports, dynamic caching management, and real-time recipe discovery all in one place.
+🎨 **Stunning UI with HeroUI** | 🔐 **Secure with Better-Auth** | 🎬 **Animated with LottieFiles**
+
+[![Next.js Version](https://img.shields.io/badge/Next.js-15.x-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org)
+[![HeroUI](https://img.shields.io/badge/UI-HeroUI-orange?style=for-the-badge)](https://heroui.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
-## 🚀 Features
+**RecipeHub** is a highly secure, modern full-stack recipe sharing and management platform. Built with Next.js, Tailwind CSS, and MongoDB, featuring a stunning user interface and robust admin controls.
 
-- 👤 **Role-Based Authentication** (Secure User & Admin Dashboards)
-- 🍔 **Recipe Discovery & Filtering** (Search by Name, Category, or Cuisine)
-- 🛡️ **Admin Reports System** (Review, Dismiss, or Delete flagged content instantly)
-- ⚡ **Optimized Performance**
-  - Instant server updates using Next.js `cache: "no-store"` implementation.
-  - Image optimization using Next.js native `<Image />` component.
-- 🎨 **Modern UI** built with Tailwind CSS, supporting seamless **Dark Mode**.
+---
+
+## 🚀 Key Features
+
+- 🔐 **Bulletproof Security with Better-Auth:** Powered by `better-auth` for industry-standard session management, secure token handling, and role-based route protection.
+- 🎨 **Stunning UI via HeroUI:** Fully responsive, modern, and aesthetic user interface built using HeroUI components with complete **Dark Mode** support.
+- 🎬 **Interactive Lottie Animations:** Smooth and engaging UX with custom LottieFiles animations for Loading states, 404 (Not Found), and 403 (Forbidden/Unauthorized) pages.
+- 🍔 **Recipe Discovery & Filtering:** Advanced filtering options allowing users to search recipes by Name, Category, or Cuisine instantly.
+- 🛡️ **Admin Reports Dashboard:** Comprehensive admin suite to review, dismiss, or delete reported recipes and maintain platform integrity.
+- ⚡ **Optimized Performance:** Next-level image optimization using Next.js native `<Image />` component for faster layout loads and zero CLS.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Next.js (App Router), React, Tailwind CSS, Lucide React (Icons), React-Toastify
+- **Frontend:** Next.js (App Router), React, HeroUI, Tailwind CSS, Lucide React (Icons), React-Toastify
+- **Authentication:** Better-Auth
+- **Animations:** LottieFiles (Lottie-React)
 - **Backend:** Node.js, Express.js (deployed on Vercel)
 - **Database:** MongoDB
 
